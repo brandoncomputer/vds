@@ -1,0 +1,12 @@
+$beepform = dialog create beep 0 0 300 300 
+$beepbtn = dialog add $beepform button 0 0 200 200 "beep"
+
+$beepform.topmost = $true
+
+$beepbtn.add_Click({
+    dialog close $beepform
+})
+
+dialog showmodal $beepform
+
+window send $FastTab.SelectedTab.Controls[0].handle "$(cr)beep"

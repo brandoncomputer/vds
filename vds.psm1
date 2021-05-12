@@ -695,6 +695,35 @@ function ctrl($a) {
 #>
 } 
 
+function decrypt ($a, $b){
+    if ($b){
+        [byte[]]$b = $b.split(" ")
+        $secure = $a | ConvertTo-SecureString -Key $b
+        $user = "inconsequential"
+        $credObject = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secure
+        return ($credObject.GetNetworkCredential().Password)
+    }
+    else{
+        $secure = $a | ConvertTo-SecureString 
+        $user = "inconsequential"
+        $credObject = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secure
+        return ($credObject.GetNetworkCredential().Password)
+    }
+<#
+    .SYNOPSIS
+    Decrypt an encrypted secret.
+     
+    .DESCRIPTION
+     VDS
+    $encrypt = 'Hello'
+    $b = $(encrypt $encrypt 'Aes')
+    $vals = $b.Split($(fieldsep))
+    info $(decrypt $vals[0] $vals[1])
+    
+    .LINK
+    https://dialogshell.com/vds/help/index.php/decrypt
+#>
+}
 
  function dialog($a,$b,$c,$d,$e,$f,$g,$h) {
      switch ($a) {
@@ -1191,6 +1220,34 @@ function dlgtext($a) {
     https://dialogshell.com/vds/help/index.php/dlgtext
 #>
 }
+
+function encrypt ($a,$b){
+    $SecureString = $a | ConvertTo-SecureString -AsPlainText -Force
+    if ($b){
+            $AESKey = New-Object Byte[] 32
+            [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($AESKey)
+            $encrypt = $SecureString | ConvertFrom-SecureString -Key $AESKey
+            return $encrypt+$fieldsep+$AESKey
+    }
+    else
+    {
+            return ($SecureString | ConvertFrom-SecureString)
+    }
+<#
+    .SYNOPSIS
+    Decrypt an encrypted secret.
+     
+    .DESCRIPTION
+     VDS
+    $encrypt = 'Hello'
+    $b = $(encrypt $encrypt 'Aes')
+    $vals = $b.Split($(fieldsep))
+    info $(decrypt $vals[0] $vals[1])
+    
+    .LINK
+    https://dialogshell.com/vds/help/index.php/encrypt
+#>
+} 
 
 function env($a) {
     $loc = Get-Location | select -ExpandProperty Path

@@ -1,0 +1,43 @@
+$examples = new-object System.Windows.Forms.ToolStripMenuItem
+$examples.name = "$localeexamples"
+$examples.Text = "$localeexamples"
+$mPlugins.DropDownItems.Add($examples) | Out-Null
+
+
+$examples.add_Click({
+    $curdir = $(curdir)
+    $fileOpen = (filedlg "$localedialog" "$docpath")
+    if ($fileOpen) {
+                if (equal (ext $fileOpen) "dsproj"){
+				$content = (get-content $fileOpen | select-object -skip 1)
+				$mAssignList.items.AddRange($content)
+                    $fileOpen = (get-content $fileOpen | Out-String).split((cr))[0]
+                }
+                $FastTab.TabPages.Add("$fileOpen")
+                $FastTab.SelectedIndex = ($FastTab.TabPages.Count - 1)
+                $FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
+                dialog property $FastText language "DialogShell"
+                dialog property $FastText dock "Fill"
+                $FastTab.SelectedTab.Controls.Add($FastText)    
+                $FastText.OpenFile($fileOpen)
+                $script:curdoc = (string $fileOpen)
+            }
+            $FastTab.SelectedTab.Controls[0].IsChanged = $false
+            $init.enabled = $true
+                                        $FastText.add_SelectionChangedDelayed({
+                $timerz.enabled = $false
+                $timerz.enabled = $true
+                $t = $FastTab.SelectedTab.Controls[0].Selection
+                $lex = $t.text.toLower()
+           
+                if ($(file $lexiconpath))
+                {
+                    iex (get-content $lexiconpath | out-string)
+                }
+                
+                $popup = dialog popup $FastTextForm ("$localeundo|$(curdir)\..\res\arrow_undo.png,-,$localecut|$(curdir)\..\res\cut.png,$localecopy|$(curdir)\..\res\page_copy.png,$localepaste|$(curdir)\..\res\paste_plain.png,-,$localefind|$(curdir)\..\res\page_find.png,$localereplace,&Go To...,$localeselectall,$localetimedate")
+
+                
+                
+            })
+})

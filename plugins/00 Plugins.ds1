@@ -1,0 +1,24 @@
+$enablePlugins = new-object System.Windows.Forms.ToolStripMenuItem
+$enablePlugins.name = "Enable Plugins"
+$enablePlugins.Text = "Enable Plugins"
+$mPlugins.DropDownItems.Add($enablePlugins) | Out-Null
+$disablePlugins = new-object System.Windows.Forms.ToolStripMenuItem
+$disablePlugins.name = "Disable Plugins"
+$disablePlugins.Text = "Disable Plugins"
+$mPlugins.DropDownItems.Add($disablePlugins) | Out-Null
+$sep = new-object System.Windows.Forms.ToolStripSeparator
+$mPlugins.DropDownItems.Add($sep) | Out-Null 
+
+$enablePlugins.add_Click({
+$filedlg = $(filedlg "Plugins|*.ds1" "$plugins\disabled")
+    if ($filedlg){
+    file move $filedlg $plugins
+    }
+})
+
+$disablePlugins.add_Click({
+$filedlg = $(filedlg "Plugins|*.ds1" "$plugins")
+    if ($filedlg){
+    file move $filedlg "$plugins\disabled"
+    }
+})

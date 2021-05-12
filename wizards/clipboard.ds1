@@ -1,0 +1,76 @@
+$MyForm = dialog create "clipboard" 0 0 600 230
+    $Label1 = dialog add $MyForm Label 25 8 110 40 "clipboard" 
+            dialog property $Label1 Font "Segoe UI Black, 16" 
+            dialog property $Label1 TabIndex ""  
+        $ComboBox1 = dialog add $MyForm ComboBox 23 131 121 21 "ComboBox1" 
+            dialog property $ComboBox1 DropDownStyle "dropdownlist" 
+            dialog property $ComboBox1 Font "Segoe UI Black, 16" 
+            dialog property $ComboBox1 TabIndex "1"  
+        $TextBox1 = dialog add $MyForm TextBox 24 265 300 20 ""
+            dialog property $TextBox1 Font "Segoe UI Black, 16"  
+        $Button1 = dialog add $MyForm Button 85 12 100 50 "OK" 
+            dialog property $Button1 Font "Segoe UI Black, 16"  
+        $Button2 = dialog add $MyForm Button 85 132 100 50 "Cancel" 
+            dialog property $Button2 Font "Segoe UI Black, 16"  
+            
+            $MyForm.AcceptButton = $Button1
+            $MyForm.CancelButton = $Button2
+            
+              $MyForm.controlbox = $false
+
+              $MyForm.formborderstyle = "fixed3d"
+                
+              list add $ComboBox1 "set"
+              list add $ComboBox1 "append"
+              list add $ComboBox1 "clear"
+              
+              
+              dialog property $ComboBox1 selecteditem "set"
+              
+              $ComboBox1.add_SelectedIndexChanged({
+                  if ($(dlgprops $ComboBox1 selecteditem) -eq "clear")
+                  {
+                  dialog disable $TextBox1}
+                  else
+                  {dialog enable $TextBox1}
+              })
+
+              $Button1.add_Click({
+
+                  if ($ComboBox1.Text -eq "set")
+                  {
+                      if ($(substr $TextBox1.text 0 1) -eq (chr 36))
+                      {
+                      $FastTab.SelectedTab.Controls[0].InsertText("clipboard set $(dlgtext $TextBox1)")}
+                      else
+                      {$FastTab.SelectedTab.Controls[0].InsertText("clipboard set $(chr 34)$(dlgtext $TextBox1)$(chr 34)")}
+}
+                  
+                   if ($ComboBox1.Text -eq "append")
+                  {
+                      if ($(substr $TextBox1.text 0 1) -eq (chr 36))
+                      {
+                      $FastTab.SelectedTab.Controls[0].InsertText("clipboard append $(dlgtext $TextBox1)")}
+                      else
+                      {$FastTab.SelectedTab.Controls[0].InsertText("clipboard append $(chr 34)$(dlgtext $TextBox1)$(chr 34)")}
+                  }
+                      
+                                         if ($ComboBox1.Text -eq "clear")
+                  {
+                      if ($(substr $TextBox1.text 0 1) -eq (chr 36))
+                      {
+                      $FastTab.SelectedTab.Controls[0].InsertText("clipboard clear")}
+                      else
+                      {$FastTab.SelectedTab.Controls[0].InsertText("clipboard clear")}
+}                 
+                  
+    dialog close $MyForm
+})
+
+$Button2.add_Click({
+    dialog close $MyForm
+})
+            
+        dialog showmodal $MyForm
+        
+      

@@ -1,0 +1,346 @@
+
+
+$mTheme = new-object System.Windows.Forms.ToolStripMenuItem
+$mTheme.name = "Themes"
+$mTheme.Text = "Themes"
+$mPlugins.DropDownItems.Add($mTheme) | Out-Null  
+
+$dark = new-object System.Windows.Forms.ToolStripMenuItem
+$dark.name = "Dark"
+$dark.Text = "Go Dark"
+$light = new-object System.Windows.Forms.ToolStripMenuItem
+$light.name = "Light"
+$light.Text = "Go Light"
+
+
+$mTheme.DropDownItems.Add($dark) | Out-Null  
+$mTheme.DropDownItems.Add($light) | Out-Null  
+$sep = new-object System.Windows.Forms.ToolStripSeparator
+$mTheme.DropDownItems.Add($sep) | Out-Null  
+
+$loadtheme = new-object System.Windows.Forms.ToolStripMenuItem
+$loadtheme.name = "Load Theme"
+$loadtheme.Text = "Load Theme"
+$mTheme.DropDownItems.Add($loadtheme) | Out-Null  
+
+$savetheme = new-object System.Windows.Forms.ToolStripMenuItem
+$savetheme.name = "Save Theme"
+$savetheme.Text = "Save Theme"
+$mTheme.DropDownItems.Add($savetheme) | Out-Null  
+
+$sep = new-object System.Windows.Forms.ToolStripSeparator
+$mTheme.DropDownItems.Add($sep) | Out-Null  
+$norm = new-object System.Windows.Forms.ToolStripMenuItem
+$norm.name = "Normal"
+$norm.Text = "Normal on Next Start"
+$mTheme.DropDownItems.Add($norm) | Out-Null  
+
+$dark.Add_Click({
+dark})
+
+$light.Add_Click({
+light})
+
+$norm.Add_Click({
+normal})
+
+$loadtheme.add_Click({
+$filedlg = $(filedlg "Theme Files|*.theme")
+if ($filedlg) {
+inifile open $filedlg
+loadtheme
+}
+})
+
+$savetheme.add_Click({
+$savedlg = $(savedlg "Theme Files|*.theme")
+if ($savedlg){
+inifile open $savedlg
+if ($global:theme -eq "Dark")
+{
+inifile write theme theme dark
+inifile write theme rd $global:rd
+inifile write theme gd $global:gd
+inifile write theme bd $global:bd
+inifile write theme rl $global:rl
+inifile write theme gl $global:gl
+inifile write theme bl $global:bl
+}
+if ($global:theme -eq "Light")
+{
+inifile write theme theme light
+inifile write theme rd $global:rd
+inifile write theme gd $global:gd
+inifile write theme bd $global:bd
+inifile write theme rl $global:rl
+inifile write theme gl $global:gl
+inifile write theme bl $global:bl
+}
+
+}
+})
+
+	
+function normal {
+	inifile open .\themes.theme
+	inifile write theme theme normal
+}
+
+function dark {
+	if ($global:themenotify -ne $true){
+    if ($FastTab.TabPages.Count -gt 0) {
+$global:themenotify = $true
+info "When switching themes you may need to reopen files for transform to complete. If you are unhappy with the coloration, try the theme again."}}
+$global:rd = $(random 0 95)
+$global:gd = $(random 0 95)
+$global:bd = $(random 0 95)
+$global:rl = $(random 160 255)
+$global:gl = $(random 160 255)
+$global:bl = $(random 160 255)
+$global:dark = $(color rgb $global:rd $global:gd $global:bd)
+$global:light = $(color rgb $global:rl $global:gl $global:bl)
+inifile open .\themes.theme
+inifile write theme theme dark
+inifile write theme rd $global:rd
+inifile write theme gd $global:gd
+inifile write theme bd $global:bd
+inifile write theme rl $global:rl
+inifile write theme gl $global:gl
+inifile write theme bl $global:bl
+
+foreach ($control in $FastTextForm.Controls) {
+$control.ForeColor = $light
+$control.BackColor = $dark
+foreach ($ctrl in $control.Controls)
+{$ctrl.ForeColor = $light
+$ctrl.BackColor = $dark}	
+foreach ($item in $control.items)
+{
+foreach ($ditem in $item.dropdownitems){
+$ditem.ForeColor = $light
+$ditem.BackColor = $dark
+}	
+
+foreach ($dditem in $mTheme.dropdownitems){
+$dditem.ForeColor = $light
+$dditem.BackColor = $dark
+}
+		
+}
+}
+$global:theme = "Dark"
+$global:language = "DialogShellDark"
+foreach ($page in $FastTab.Controls)
+{
+$page.Controls[0].ForeColor = $light
+$page.Controls[0].BackColor = $dark
+$page.Controls[0].IndentBackColor = $dark
+$page.Controls[0].Language = "DialogShellDark"
+}
+	}
+	
+	function light {
+	if ($global:themenotify -ne $true)
+{
+    if ($FastTab.TabPages.Count -gt 0) {
+$global:themenotify = $true
+info "When switching themes you may need to reopen files for transform to complete. If you are unhappy with the coloration, try the theme again."}}
+$global:rd = $(random 0 95)
+$global:gd = $(random 0 95)
+$global:bd = $(random 0 95)
+$global:rl = $(random 160 255)
+$global:gl = $(random 160 255)
+$global:bl = $(random 160 255)
+$global:dark = $(color rgb $global:rd $global:gd $global:bd)
+$global:light = $(color rgb $global:rl $global:gl $global:bl)
+			inifile open .\themes.theme
+inifile write theme theme light
+inifile write theme rd $global:rd
+inifile write theme gd $global:gd
+inifile write theme bd $global:bd
+inifile write theme rl $global:rl
+inifile write theme gl $global:gl
+inifile write theme bl $global:bl
+
+
+			foreach ($control in $FastTextForm.Controls)
+			{$control.ForeColor = $dark
+			$control.BackColor = $light
+			
+foreach ($ctrl in $control.Controls)
+{$ctrl.ForeColor = $dark
+$ctrl.BackColor = $light}	
+foreach ($item in $control.items)
+{
+foreach ($ditem in $item.dropdownitems){
+$ditem.ForeColor = $dark
+$ditem.BackColor = $light
+}
+
+foreach ($dditem in $mTheme.dropdownitems){
+$dditem.ForeColor = $dark
+$dditem.BackColor = $light
+}
+			
+}
+}
+			
+			$global:theme = "Light"
+			$global:language = "DialogShell"
+			
+			foreach ($page in $FastTab.Controls)
+			{
+			$page.Controls[0].ForeColor = $dark
+			$page.Controls[0].BackColor = $light
+			$page.Controls[0].IndentBackColor = $light
+			$page.Controls[0].Language = "DialogShell"
+			}
+}
+
+$fastcovertime = timer 500
+$fastcovertime.add_Tick({
+
+if ($global:theme -eq "Light")
+{$popup.backcolor = $light
+$popup.forecolor = $dark}
+if ($global:theme -eq "Dark")
+{$popup.backcolor = $dark
+$popup.forecolor = $light}
+#write-host ($StatusStrip1.Visible | out-string).trim()
+#write-host ($StatusStrip1.Visible | out-string)
+    if ($StatusStrip1.Visible -eq $True) {
+        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 110)
+		dialog setpos $FastCover 51 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 109)
+    }
+    else {
+        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 90)
+		dialog setpos $FastCover 51 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 89)
+    }
+    if ($FastTab.TabPages.Count -lt 1) {
+        dialog hide $closetab
+		dialog show $FastCover
+    }
+    else {
+        dialog show $closetab
+		dialog hide $FastCover
+        $closetab.BringToFront()
+        dialog setpos $closetab 25 (differ (dlgpos $FastTextForm w) 40) 25 25
+    }
+	})
+	
+	$FastCover			= dialog add $FastTextForm label 50 0 480 460 ""
+$FastCover.BringToFront()
+$StatusStrip1.BringToFront()
+
+function loadtheme {
+	if (($(iniread theme theme)) -eq "light")
+	{
+	$global:rd = (($(iniread theme rd))/1)
+	$global:gd = (($(iniread theme gd))/1)
+	$global:bd = (($(iniread theme bd))/1)
+	$global:rl = (($(iniread theme rl))/1)
+	$global:gl = (($(iniread theme gl))/1)
+	$global:bl = (($(iniread theme bl))/1)
+inifile open .\themes.theme
+inifile write theme theme light
+inifile write theme rd $global:rd
+inifile write theme gd $global:gd
+inifile write theme bd $global:bd
+inifile write theme rl $global:rl
+inifile write theme gl $global:gl
+inifile write theme bl $global:bl
+	
+$global:dark = $(color rgb $global:rd $global:gd $global:bd)
+$global:light = $(color rgb $global:rl $global:gl $global:bl)
+
+			foreach ($control in $FastTextForm.Controls)
+			{$control.ForeColor = $dark
+			$control.BackColor = $light
+			
+foreach ($ctrl in $control.Controls)
+{$ctrl.ForeColor = $dark
+$ctrl.BackColor = $light}	
+foreach ($item in $control.items)
+{
+foreach ($ditem in $item.dropdownitems){
+$ditem.ForeColor = $dark
+$ditem.BackColor = $light
+}
+
+foreach ($dditem in $mTheme.dropdownitems){
+$dditem.ForeColor = $dark
+$dditem.BackColor = $light
+}
+			
+}
+}
+			
+			$global:theme = "Light"
+			$global:language = "DialogShell"
+			
+			foreach ($page in $FastTab.Controls)
+			{
+			$page.Controls[0].ForeColor = $dark
+			$page.Controls[0].BackColor = $light
+			$page.Controls[0].IndentBackColor = $light
+			$page.Controls[0].Language = "DialogShell"
+			}
+	}
+		if (($(iniread theme theme)) -eq "dark")
+			{
+	$global:rd = (($(iniread theme rd))/1)
+	$global:gd = (($(iniread theme gd))/1)
+	$global:bd = (($(iniread theme bd))/1)
+	$global:rl = (($(iniread theme rl))/1)
+	$global:gl = (($(iniread theme gl))/1)
+	$global:bl = (($(iniread theme bl))/1)
+inifile open .\themes.theme
+inifile write theme theme dark
+inifile write theme rd $global:rd
+inifile write theme gd $global:gd
+inifile write theme bd $global:bd
+inifile write theme rl $global:rl
+inifile write theme gl $global:gl
+inifile write theme bl $global:bl
+	
+$global:dark = $(color rgb $global:rd $global:gd $global:bd)
+$global:light = $(color rgb $global:rl $global:gl $global:bl)
+	
+
+foreach ($control in $FastTextForm.Controls) {
+$control.ForeColor = $light
+$control.BackColor = $dark
+foreach ($ctrl in $control.Controls)
+{$ctrl.ForeColor = $light
+$ctrl.BackColor = $dark}	
+foreach ($item in $control.items)
+{
+foreach ($ditem in $item.dropdownitems){
+$ditem.ForeColor = $light
+$ditem.BackColor = $dark
+}
+
+foreach ($dditem in $mTheme.dropdownitems){
+$dditem.ForeColor = $light
+$dditem.BackColor = $dark
+}
+
+}
+}
+$global:theme = "Dark"
+$global:language = "DialogShellDark"
+foreach ($page in $FastTab.Controls)
+{
+$page.Controls[0].ForeColor = $light
+$page.Controls[0].BackColor = $dark
+$page.Controls[0].IndentBackColor = $dark
+$page.Controls[0].Language = "DialogShellDark"
+}
+	}
+		}
+
+inifile open .\themes.theme		
+loadtheme
+
+
+
