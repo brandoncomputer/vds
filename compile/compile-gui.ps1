@@ -241,7 +241,7 @@ Add-Content $textbox2.text $header -enc ascii
 Add-Content $textbox2.text $ctf1 -enc ascii
 Add-Content $textbox2.text $ctf2.replace('$args[0]','$1').replace('$args[1]','$2').replace('$args[2]','$3').replace('$args[3]','$4').replace('$args[4]','$5').replace('$args[5]','$6').replace('$args[6]','$7').replace('$args[7]','$8').replace('$args[8]','$9') -enc ascii
 Add-Content $textbox2.text $footer -enc ascii
-link "$(path $($textbox2.text))\$(name $($textbox2.text)).exe.lnk" "$(chr 34)$($textbox2.text)$(chr 34)" "$(path $($textbox2.text))\" $textbox3.text "" $checkbox6.checked 7
+link "$(path $($textbox2.text))\$(name $($textbox2.text)).lnk" "$(chr 34)$($textbox2.text)$(chr 34)" "$(path $($textbox2.text))\" $textbox3.text "" $checkbox6.checked 7
 #info "cmd /c $($textbox2.text)"
 #link "$(path $($textbox2.text))\$(name $($textbox2.text)).exe.lnk" "cmd /c $($textbox2.text)" "" $textbox3.text "" $checkbox6.checked 7
 info "Process Complete"
