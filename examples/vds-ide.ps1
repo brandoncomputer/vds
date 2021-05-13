@@ -614,7 +614,7 @@ $mForm.Show()
                     if ($FastTab.TabPages.Count -gt 0) {
                         inifile open ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.pil')
                         inifile write compile inputfile $FastTab.SelectedTab.Text
-                        inifile write compile outputfile ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.ps1')
+                        inifile write compile outputfile ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.cmd')
                  $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
 					   run $inv
                     }
