@@ -1,29 +1,11 @@
 Add-Type -AssemblyName System.Windows.Forms,Microsoft.VisualBasic,System.Drawing, presentationframework, presentationcore, WindowsBase, System.ComponentModel
 
 Add-Type @"
-//" closing above quote for editing c# syntax in another editor.
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.ComponentModel;
-public class vdsForm:Form {
-[DllImport("user32.dll")]
-public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
-[DllImport("user32.dll")]
-public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-    protected override void WndProc(ref Message m) {
-        base.WndProc(ref m);
-        if (m.Msg == 0x0312) {
-            int id = m.WParam.ToInt32();    
-            foreach (Control item in this.Controls) {
-                if (item.Name == "hotkey") {
-                    item.Text = id.ToString();
-                }
-            }
-        }
-    }   
-}
 
 public class vds {
 [DllImport("user32.dll")]
@@ -195,6 +177,32 @@ public static void RightClickAtPoint(int x, int y, int width, int height)
         Adapted to VDS: 20190212
         License: Microsoft Limited Public License
 #>
+
+Add-Type @"
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.ComponentModel;
+public class vdsForm:Form {
+[DllImport("user32.dll")]
+public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+[DllImport("user32.dll")]
+public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    protected override void WndProc(ref Message m) {
+        base.WndProc(ref m);
+        if (m.Msg == 0x0312) {
+            int id = m.WParam.ToInt32();    
+            foreach (Control item in this.Controls) {
+                if (item.Name == "hotkey") {
+                    item.Text = id.ToString();
+                }
+            }
+        }
+    }   
+}
+"@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives
+
 Add-Type -TypeDefinition @"
 //"
 using System;
@@ -248,10 +256,13 @@ public class Window
     }
 }
 "@
+
+
 $global:xmen = $false
 $global:excelinit = $false
 $global:fieldsep = "|"
 $global:database = new-object System.Data.Odbc.OdbcConnection
+set-alias run invoke-expression
 
 function abs($a) {
 <#
@@ -696,19 +707,19 @@ function ctrl($a) {
 } 
 
 function decrypt ($a, $b){
-    if ($b){
-        [byte[]]$b = $b.split(" ")
-        $secure = $a | ConvertTo-SecureString -Key $b
-        $user = "inconsequential"
-        $credObject = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secure
-        return ($credObject.GetNetworkCredential().Password)
-    }
-    else{
-        $secure = $a | ConvertTo-SecureString 
-        $user = "inconsequential"
-        $credObject = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secure
-        return ($credObject.GetNetworkCredential().Password)
-    }
+	if ($b){
+		[byte[]]$b = $b.split(" ")
+		$secure = $a | ConvertTo-SecureString -Key $b
+		$user = "inconsequential"
+		$credObject = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secure
+		return ($credObject.GetNetworkCredential().Password)
+	}
+	else{
+		$secure = $a | ConvertTo-SecureString 
+		$user = "inconsequential"
+		$credObject = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secure
+		return ($credObject.GetNetworkCredential().Password)
+	}
 <#
     .SYNOPSIS
     Decrypt an encrypted secret.
@@ -716,9 +727,9 @@ function decrypt ($a, $b){
     .DESCRIPTION
      VDS
     $encrypt = 'Hello'
-    $b = $(encrypt $encrypt 'Aes')
-    $vals = $b.Split($(fieldsep))
-    info $(decrypt $vals[0] $vals[1])
+	$b = $(encrypt $encrypt 'Aes')
+	$vals = $b.Split($(fieldsep))
+	info $(decrypt $vals[0] $vals[1])
     
     .LINK
     https://dialogshell.com/vds/help/index.php/decrypt
@@ -1222,17 +1233,17 @@ function dlgtext($a) {
 }
 
 function encrypt ($a,$b){
-    $SecureString = $a | ConvertTo-SecureString -AsPlainText -Force
-    if ($b){
-            $AESKey = New-Object Byte[] 32
-            [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($AESKey)
-            $encrypt = $SecureString | ConvertFrom-SecureString -Key $AESKey
-            return $encrypt+$fieldsep+$AESKey
-    }
-    else
-    {
-            return ($SecureString | ConvertFrom-SecureString)
-    }
+	$SecureString = $a | ConvertTo-SecureString -AsPlainText -Force
+	if ($b){
+			$AESKey = New-Object Byte[] 32
+			[Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($AESKey)
+			$encrypt = $SecureString | ConvertFrom-SecureString -Key $AESKey
+			return $encrypt+$fieldsep+$AESKey
+	}
+	else
+	{
+			return ($SecureString | ConvertFrom-SecureString)
+	}
 <#
     .SYNOPSIS
     Decrypt an encrypted secret.
@@ -1240,14 +1251,14 @@ function encrypt ($a,$b){
     .DESCRIPTION
      VDS
     $encrypt = 'Hello'
-    $b = $(encrypt $encrypt 'Aes')
-    $vals = $b.Split($(fieldsep))
-    info $(decrypt $vals[0] $vals[1])
+	$b = $(encrypt $encrypt 'Aes')
+	$vals = $b.Split($(fieldsep))
+	info $(decrypt $vals[0] $vals[1])
     
     .LINK
     https://dialogshell.com/vds/help/index.php/encrypt
 #>
-} 
+}
 
 function env($a) {
     $loc = Get-Location | select -ExpandProperty Path
