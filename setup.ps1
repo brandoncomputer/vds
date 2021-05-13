@@ -121,7 +121,7 @@ $MyForm.icon = "$(curdir)\setup\res\cog_go.ico"}
                     registry newitem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "UninstallString" String "cmd /c start /min $(chr 34)$(chr 34) C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -windowstyle hidden -ep bypass -sta -file c:\windows\installer\dialogshell\setup.ps1"
                     registry newitem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "Publisher" String "vds/pwsh community"
                 if ($(regexists "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\"))
-                   {registry modifyitem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "DisplayVersion" "0.3.1.6"
+                   {registry modifyitem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "DisplayVersion" $(sysinfo dsver)
                    registry modifyitem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallDate" $(datetime).ToString('yyyyMMdd')
                    }
                    
