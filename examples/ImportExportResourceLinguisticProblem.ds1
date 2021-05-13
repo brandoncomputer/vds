@@ -1,0 +1,80 @@
+ import-module c:\vds\trunk\vds.psm1
+ 
+ #Discovered this is a bug in powershell. The functions 1 and 2 only work when a module is externally imported.
+ #When we compile an executable, the files are first merged, to technically no vds module is loaded.
+
+        function decode ($string){
+           $string = [System.Convert]::FromBase64String($string)
+           return [System.Byte[]]$string
+            #although this works, it returns a system object, which is not usable. We need raw in memory. 
+            #casting to byte solves, but can't be done within the function, it has to be done in the script.
+            #also, it should be unneeded. [Byte[]] is assumed to belong to system, I guess that's the shortest.
+            #I also think something like this is why I had to resort to preceeding the module commands with run
+            #although run produces failure here. 
+            #This 'decode' is a translation of 'module decode'. Ultimately [Byte]](resource decode $a) is  
+            #easier to remember than [System.Convert]::FromBase64String($a) , but not by much.
+            # adding the image from string seems to work on everything.
+            # 1 and 2 seem to not work on everything, but 3 and 4 do.
+        }
+
+$form = dialog create Myform 0 0 800 600
+$button1 = dialog add $form button 0 0 100 20 ""
+$b = resource import '..\res\button.ico'
+$b | Out-File .\button.res
+trace on
+$c = [Byte[]](resource decode $b)
+trace off
+$d = [System.Convert]::FromBase64String($b)
+
+$button1.image = [Byte[]](resource decode "AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAQAQAAAAAAAAAAAAAAA`
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAESVTP5BkUn7PYxF+jqHQPo3gj36M305+jB5NfotdTL6KXAu+iZsK/oj`
+aCj6IWQl+h9hIvkdXiD5G1we+xlaHf5Hmk/4RJZM10CQSMc9i0TIOYdByDaCPMcyfTjGL3k1xSx0McQpby3CJWsqwSNnJ78hZCS9HmEivBxeH88aXB76S`
+59U90ibUNBDlEu9QI9IvjyLRL45hj+8NoE8vDJ9OLoveDS5LHMwuChwLbYlayqzI2gnsiFlJaQeYiK3HV8h+U+kWPpKnVPnRZZM3kKRSN8+jUXeO4hB3T`
+iDPt00fzrcMHo23C11Mtwqci/bJ20s2iRpKNskaCi6IWYmuyBjJPlTql35TaNX4UicUdZFl03ZQpNK2T+ORdk8iUHaOIQ+2zR/OtswejfaLXcz2SpyL9k`
+nbSvfJmsrwCRqKb0iZif6Vq9g+VGoW91MoVXRSZxS1UaYTtZDk0nYQI9G2TyKQto4hT7aNIA72TF8ONcudzTWKnIw3ilwLsEnbizAJWsq+lmzZPlUq13f`
+TqRX1EygVdhJnFHaRZdN3UKTSt4/jkbeO4lC3jeEPuA1gDzcMn041y53NN8tdjPDK3MxwSlwLvpct2f4V7Bh0lGpW8NPpVnLTaFVz0mcUtRGmE7WQ5RL1`
+z+PR9k7ikPeOYVA3DaCPdYyfDnfMXs2xC94NMItdDL6X7tq9lq0ZcRVrV+wU6pdu1GmWcJNolbISp5TzEeaUM9ElUzRQI9H2TyKQ9o5h0DUNYE83zSAO8`
+UyfTnDMHk1+mG/bfNbt2a1Vq5gnVSsXqpSqVy0UKVZu0yhVsFKnlPGR5lPykOTS9RAkEfWPY1F0DmGQN45hT/FN4M9xDR/Ovpkwm/xXbloolevYYNVrmC`
+SVKtdnFKoWqZPpViwTaJWt0qeU75GmE7LQ5RLz0GSSco9i0TbPIpDwzuIQsM4hD77ZcRx52G+bLBduWmaXLZnpVqzZKtXsGGzVK1eu1KqXMBPpVjFS59U`
+0UibUdNGmU/OQpJK3kGQScs/jkbFO4lD6WXEcdplw3DRY8FvzmG9bdFfumrSXLdn1Fm0ZNZXsGHXVKte2VCmWd9NoVbfSp5T2kaYT+ZElk3XQpNKyT+OR`
+9AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAP//AAAAAAAAAAAAAAAAAAAAAA`
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//8AAA==")
+
+$button1.add_Click({
+    $button1.image = $null
+    $button1.image = $c
+    info '1'
+    $timer.enabled = $true
+})
+
+$timer = timer 1000
+$timer.enabled = $false
+$timer.add_Tick({
+    $button1.image = $null
+    $button1.image = $d
+    $timer.enabled = $false
+        info '2'
+    $timer2.enabled = $true
+})
+
+$timer2 = timer 1000
+$timer2.enabled = $false
+$timer2.add_Tick({
+    $button1.image = $null
+    $button1.image = [Byte[]](resource load '.\button.res')
+    $timer2.enabled = $false
+        info '3'
+    $timer3.enabled = $true
+})
+
+$timer3 = timer 1000
+$timer3.enabled = $false
+$timer3.add_Tick({
+    $button1.image = $null
+    dialog image $button1 '..\res\button.ico' 
+    $timer3.enabled = $false
+        info '4'
+})
+
+dialog show $form

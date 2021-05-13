@@ -1,0 +1,6 @@
+import-module c:\vds\trunk\vds.psm1
+file copy https://dialogshell.com/dictation.zip c:\temp\dictation.zip
+run (module export .\test.ds1 test.dsm1)
+run (module encoded .\test.dsm1)
+#run (module import .\test.ds1)
+test

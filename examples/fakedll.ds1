@@ -1,0 +1,17 @@
+import-module c:\vds\trunk\vds.psm1
+$exportstring = @"
+function test {
+info 'test'
+}
+"@
+for ($i = 0; $i -lt 30; $i++){
+    $exportstring = resource asciiencode $exportstring
+}
+$exportstring | Out-File '.\test.dll' -enc ascii
+# 192kb 'dll' file
+$Content = (get-content '.\test.dll')
+for ($i = 0; $i -lt 30; $i++) {
+    $Content = resource asciidecode $Content
+}
+invoke-expression $Content
+test
