@@ -16,7 +16,7 @@ DialogShell is a best effort to preserve the DialogScript language, more importa
 DialogShell is this PowerShell module. https://github.com/brandoncomputer/vds/blob/master/vds.psm1
 
 ### Yes, but there's obviously more than that here, so what is DialogShell?
-Visual DialogShell is a visual programming language, a product of DialogShell, which is a PowerShell module. It contains a executable that encompasses the codebase 'compile.exe' that allows you to create new executables in the DialogShell language (derived from PowerShell and DialogScript) for end user applications. Alternately you can call to the codebase vds.psm1 (dialogshell!) and make the deliverable a PowerShell script although this method isn't included in the release it's easy enough to apply from the source code.
+Visual DialogShell is a visual programming language, a product of DialogShell, which is a PowerShell module. It contains a packager that encompasses the codebase that allows you to create new solutions in the DialogShell language (derived from PowerShell and DialogScript) for end user applications. Alternately you can call to the codebase vds.psm1 (dialogshell!) and make the deliverable a PowerShell script.
 
 ### Why do I need DialogShell?
 Why should you be interested in DialogShell when C++, C# and Visual Basic are all similarly suited to the task of visual programming? DialogScript is amazing at one thing: The Law of Demeter, or principle of least knowledge. PowerShell is good at this, but not as good as DialogScript. The Law of Demeter is why people love PowerShell, DialogShell builds on this strength to allow users to quickly build powerful solutions. If you are solution oriented, DialogShell should appeal to you.
@@ -35,16 +35,9 @@ make.bat (recently simplified)
 
 ## Prerequisites
 
-Windows 7 or above with Powershell is the primary prerequisite. 
+Windows XP or above with Powershell is the primary prerequisite. 
 
-DialogShell (now) comes with it's own IDE.
-
-For alternative IDE choices, Powershell ISE is good to get started, but Visual Studio Code is more appropriate. I actually settled on Notepad++, and added this to my Run Run Save:
-c:\vds\trunk\compile\DialogShell.exe "$(FULL_CURRENT_PATH)" -cpath
-
-DialogShell.exe is partially compatible with Visual Studio Code as a console, but may need more work.
-
-The intent is to continue expanding through PowerShell Core, with the current version being 7, and even expanding into other operating systems. To do so, we need to flip our thinking back to the module vds.psm1 and come up with other unique 'tack ons' for these other systems.
+DialogShell comes with it's own IDE.
 
 Example script syntax:
 
