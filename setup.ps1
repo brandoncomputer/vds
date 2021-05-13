@@ -92,9 +92,8 @@ $MyForm.icon = "$(curdir)\setup\res\cog_go.ico"}
                     # file copy .\setup\* $Label2.Text
                     file copy setup.ps1 "c:\windows\installer\dialogshell"
 					file copy vds.psm1 "c:\windows\installer\dialogshell"
-               		
-					directory create ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds")
-					file copy .\vds.psm1 ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds")
+               		directory create ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds")
+					file copy vds.psm1 ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds")
                     directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell")
                     directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
                     directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-US")
