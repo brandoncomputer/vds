@@ -3049,7 +3049,7 @@ function lower($a) {
 }
 
 function match($a,$b,$c) {
-    if ($c = $null){
+    if ($c -eq $null){
         $c = -1
     }
     else {
