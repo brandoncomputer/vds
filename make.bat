@@ -7,6 +7,8 @@ mkdir setup\examples
 copy .\examples .\setup\examples
 mkdir setup\examples\en-US
 copy .\examples\en-US .\setup\examples\en-US
+mkdir setup\themes
+copy .\themes .\setup\themes
 mkdir setup\elements
 copy .\elements .\setup\elements
 mkdir setup\res
