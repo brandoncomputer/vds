@@ -126,8 +126,19 @@ else
 
 $script:lastfind = ""
 $script:curdoc = ""
-$FastTextForm       = dialog create "Visual DialogShell" 0 0 600 480
 
+$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+[xml]$xml = ""
+$dum = (New-Object System.Xml.XmlNodeReader $xml)
+$win = [Windows.Markup.XamlReader]::Load($dum)
+
+$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+$global:ctscale = ($screen/$vscreen)
+
+$FastTextForm       = dialog create "Visual DialogShell" 0 0 600 480
+$FastTextForm.Font = New-Object System.Drawing.Font("Calibri",8)
 $mAssignList = dialog add $FastTextForm ComboBox 0 100 100 50
 dialog hide $mAssignList
 
@@ -136,6 +147,10 @@ $FastTextForm.MinimumSize = new-object System.Drawing.Size(480,360)
 $StatusStrip1       = dialog add $FastTextForm StatusStrip 
 $closetab           = dialog add $FastTextForm button 0 0 0 0
 $toolstrip1         = dialog add $FastTextForm toolstrip ("$localenew|$(curdir)\..\res\page_add.png,$localeopen|$(curdir)\..\res\folder_page_white.png,$localesave|$(curdir)\..\res\disk.png,-,$localeprint|$(curdir)\..\res\printer.png,-,$localeundo|$(curdir)\..\res\arrow_undo.png,-,$localecut|$(curdir)\..\res\cut.png,$localecopy|$(curdir)\..\res\page_copy.png,$localepaste|$(curdir)\..\res\paste_plain.png,-,$localefind|$(curdir)\..\res\page_find.png,-,$localerecord|$(curdir)\..\res\record.png,$localeplay|$(curdir)\..\res\control_play_blue.png,-,$localedialogshell|$(curdir)\..\res\terminal.ico,$localedesigner|$(curdir)\..\res\icon.ico,$localedebug|$(curdir)\..\res\bug_go.png,$localecompile|$(curdir)\..\res\compile.ico")
+
+$toolstrip1.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
+$toolstrip1.Height = $toolstrip1.Height * $ctscale
+
 $file               = dialog add $FastTextForm menustrip "$localefile" ("$localenew|Ctrl+N|$(curdir)\..\res\page_add.png,$localeopen|Ctrl+O|$(curdir)\..\res\folder_page_white.png,$localesave|Ctrl+S|$(curdir)\..\res\disk.png,$localesaveas,-,$localeprint|Ctrl+P|$(curdir)\..\res\printer.png,-,E&xit")
 $edit               = dialog add $FastTextForm menustrip "$localeedit" ("$localeundo|Ctrl+Z|$(curdir)\..\res\arrow_undo.png,-,$localecut|Ctrl+X|$(curdir)\..\res\cut.png,$localecopy|Ctrl+C|$(curdir)\..\res\page_copy.png,$localepaste|Ctrl+V|$(curdir)\..\res\paste_plain.png,-,$localefind|Ctrl+F|$(curdir)\..\res\page_find.png,$localereplace|Ctrl+H,&Go To...|Ctrl+G,$localeselectall|Ctrl+A,$localetimedate|F5")
 $view               = dialog add $FastTextForm menustrip "$localeview" "$localestatusbar,-,50%|Ctrl+5,100%|Ctrl+0,200%|Ctrl+2" 
@@ -143,7 +158,13 @@ $build              = dialog add $FastTextForm menustrip "$localebuild" ("$local
 $mPlugins           = dialog add $FastTextForm menustrip "$localeplugins" 
 $help               = dialog add $FastTextForm menustrip "$localehelp" ("$localehelp|F1|$(curdir)\..\res\help.png,$localeabout")               
 $FastTab            = dialog add $FastTextForm TabControl 50 0 480 360
-dialog image $closetab ((curdir)+'\..\res\tab_delete.png')
+
+$closetab.BackgroundImageLayout = "Zoom"
+dialog backgroundimage $closetab ((curdir)+'\..\res\tab_delete.png')
+
+#$closetab.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
+
+
 $popup = dialog popup $FastTextForm ("$localeundo|$(curdir)\..\res\arrow_undo.png,-,$localecut|$(curdir)\..\res\cut.png,$localecopy|$(curdir)\..\res\page_copy.png,$localepaste|$(curdir)\..\res\paste_plain.png,-,$localefind|$(curdir)\..\res\page_find.png,$localereplace,&Go To...,$localeselectall,$localetimedate")
 
 dialog property $toolstrip1.Items["$localenew"] tooltiptext "$localenewtt"
@@ -338,17 +359,17 @@ $script:statusstripvisible = $true
 $init = timer 1
 $init.add_Tick({
     if (equal $script:statusstripvisible $true) {
-        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 110)
+    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (115 * $ctscale))
     }
     else {
-        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 90)
+    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (95 * $ctscale))
     }
     if ($FastTab.TabPages.Count -lt 1) {
         dialog hide $closetab}
     else {
         dialog show $closetab
         $closetab.BringToFront()
-        dialog setpos $closetab 25 (differ (dlgpos $FastTextForm w) 40) 25 25
+        dialog setpos $closetab (25 * $ctscale) (differ (dlgpos $FastTextForm w) (40 * $ctscale)) (25 * $ctscale) (25 * $ctscale)
         $FastTab.SelectedTab.Controls[0].ShowFoldingLines = $true
     }
     $init.enabled = $false
@@ -522,10 +543,10 @@ $statusupdate.add_Tick({
             
 $FastTextForm.add_Resize({
     if (equal $script:statusstripvisible $true) {
-        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 110)
+    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (115 * $ctscale))
     }
     else {
-        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 90)
+    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (95 * $ctscale))
     }
     if ($FastTab.TabPages.Count -lt 1) {
         dialog hide $closetab
@@ -533,7 +554,7 @@ $FastTextForm.add_Resize({
     else {
         dialog show $closetab
         $closetab.BringToFront()
-        dialog setpos $closetab 25 (differ (dlgpos $FastTextForm w) 40) 25 25
+        dialog setpos $closetab (25 * $ctscale) (differ (dlgpos $FastTextForm w) (40 * $ctscale)) (25 * $ctscale) (25 * $ctscale)
     }
 })
 
@@ -602,12 +623,12 @@ $mForm.Show()
 }
         }
    "$localecompile" {
-	   cls
+       cls
 
             if (file ((path $FastTab.SelectedTab.Text)+'\'+$(name $FastTab.SelectedTab.Text)+'.pil'))
             {
-				 $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
-				 run $inv
+                 $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
+                 run $inv
             }
             else {
                 if ($FastTab.SelectedTab.Text -ne "[$localenewtt]") {
@@ -616,16 +637,16 @@ $mForm.Show()
                         inifile write compile inputfile $FastTab.SelectedTab.Text
                         inifile write compile outputfile ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.cmd')
                  $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
-					   run $inv
+                       run $inv
                     }
                     else { 
-					    
-					    $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
+                        
+                        $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
                         run $inv
                     }
                 }
                 else {
-					
+                    
                     $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
                      run $inv
                 }
@@ -887,7 +908,7 @@ $mForm.Show()
 
 
 function aboutbox {
-    $AboutForm = dialog create "About Visual DialogShell" 0 0 725 480
+    $AboutForm = dialog create "About Visual DialogShell" 0 0 (725 * $ctscale) (480 * $ctscale)
     $PictureBox1 = dialog add $AboutForm PictureBox 37 68 100 50 
     dialog property $PictureBox1 BorderStyle "Fixed3D"  
     $PictureBox2 = dialog add $AboutForm PictureBox 59 44 100 50 
@@ -902,9 +923,9 @@ function aboutbox {
  #   dialog property $PictureBox3 backcolor $(color rgb 0 0 255)
     $string = "Visual DialogShell $(cr)$(lf)$(cr)$(lf)Unless otherwise mentioned, this is the fruit of an MIT Open sourced project located at https://github.com/brandoncomputer/vds, some portions are CC by SA, others are lgplv3, and some are MSPL.$(cr)$(lf)This software is meant for the quickest freshest on the fly windows programs ever. Get more done, in less time, by using simpler tools. $(cr)$(lf)PowerShell compatible.$(cr)$(lf) A very special thanks to Julian Moss, the creator of DialogScript, for introducing me to the world of computer programming.$(cr)$(lf)$(cr)$(lf)Copyright 2019 Brandon Cunningham$(cr)$(lf)Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the $(chr 34)Software$(chr 34)), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:$(cr)$(lf)The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.$(cr)$(lf)THE SOFTWARE IS PROVIDED $(chr 34)AS IS$(chr 34), WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."  
     #  $string = "$localeaboutdialog"
-    $Label1 = dialog add $AboutForm label 21 188 500 500 $string
+    $Label1 = dialog add $AboutForm label 21 188 (500 * $ctscale) (500 * $ctscale) $string
     dialog property $Label1 font "Segoe UI Black, 8"
-    $Buttonx = dialog add $AboutForm button 400 400 40 20 "OK"
+    $Buttonx = dialog add $AboutForm button (400 * $ctscale) (400 * $ctscale) (40 * $ctscale) (20 * $ctscale) "OK"
     $Buttonx.BringToFront()
     $Buttonx.add_Click({dialog close $AboutForm})
     
