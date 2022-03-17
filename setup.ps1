@@ -65,7 +65,7 @@ $MyForm.icon = "$(curdir)\setup\res\cog_go.ico"}
                     {
                          directory delete $(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")
                          directory delete "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
-						 directory delete ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds")
+						 directory delete ([Environment]::GetFolderPath("System")+"\WindowsPowerShell\v1.0\Modules\vds")
                       #  New-PSDrive -PSProvider registry -Root HKEY_CLASSES_ROOT -Name HKCR
                     #   See comments on these entries in the install section.
                     #   registry deleteitem "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" "$(regread HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\ InstallLocation)\examples\vds-ide.exe"
@@ -92,8 +92,8 @@ $MyForm.icon = "$(curdir)\setup\res\cog_go.ico"}
                     # file copy .\setup\* $Label2.Text
                     file copy setup.ps1 "c:\windows\installer\dialogshell"
 					file copy vds.psm1 "c:\windows\installer\dialogshell"
-               		directory create ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds")
-					file copy vds.psm1 ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds")
+               		directory create ([Environment]::GetFolderPath("System")+"\WindowsPowerShell\v1.0\Modules\vds")
+					file copy vds.psm1 ([Environment]::GetFolderPath("System")+"\WindowsPowerShell\v1.0\Modules\vds")
                     directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell")
                     directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
                     directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-US")
