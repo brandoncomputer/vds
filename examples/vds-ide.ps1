@@ -143,13 +143,16 @@ $mAssignList = dialog add $FastTextForm ComboBox 0 100 100 50
 dialog hide $mAssignList
 
 $FastTextForm.icon = (curdir)+"\..\res\icon.ico"
-$FastTextForm.MinimumSize = new-object System.Drawing.Size(480,360)
+$FastTextForm.MinimumSize = new-object System.Drawing.Size((480 * $ctscale),(360 * $ctscale))
 $StatusStrip1       = dialog add $FastTextForm StatusStrip 
 $closetab           = dialog add $FastTextForm button 0 0 0 0
 $toolstrip1         = dialog add $FastTextForm toolstrip ("$localenew|$(curdir)\..\res\page_add.png,$localeopen|$(curdir)\..\res\folder_page_white.png,$localesave|$(curdir)\..\res\disk.png,-,$localeprint|$(curdir)\..\res\printer.png,-,$localeundo|$(curdir)\..\res\arrow_undo.png,-,$localecut|$(curdir)\..\res\cut.png,$localecopy|$(curdir)\..\res\page_copy.png,$localepaste|$(curdir)\..\res\paste_plain.png,-,$localefind|$(curdir)\..\res\page_find.png,-,$localerecord|$(curdir)\..\res\record.png,$localeplay|$(curdir)\..\res\control_play_blue.png,-,$localedialogshell|$(curdir)\..\res\terminal.ico,$localedesigner|$(curdir)\..\res\icon.ico,$localedebug|$(curdir)\..\res\bug_go.png,$localecompile|$(curdir)\..\res\compile.ico")
 
 $toolstrip1.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
 $toolstrip1.Height = $toolstrip1.Height * $ctscale
+#$toolstrip1.Items["$localenew"].autosize = $false
+#$toolstrip1.Items["$localenew"].margin = new-object System.Windows.Forms.Padding(6, 0, 6, 0)
+
 
 $file               = dialog add $FastTextForm menustrip "$localefile" ("$localenew|Ctrl+N|$(curdir)\..\res\page_add.png,$localeopen|Ctrl+O|$(curdir)\..\res\folder_page_white.png,$localesave|Ctrl+S|$(curdir)\..\res\disk.png,$localesaveas,-,$localeprint|Ctrl+P|$(curdir)\..\res\printer.png,-,E&xit")
 $edit               = dialog add $FastTextForm menustrip "$localeedit" ("$localeundo|Ctrl+Z|$(curdir)\..\res\arrow_undo.png,-,$localecut|Ctrl+X|$(curdir)\..\res\cut.png,$localecopy|Ctrl+C|$(curdir)\..\res\page_copy.png,$localepaste|Ctrl+V|$(curdir)\..\res\paste_plain.png,-,$localefind|Ctrl+F|$(curdir)\..\res\page_find.png,$localereplace|Ctrl+H,&Go To...|Ctrl+G,$localeselectall|Ctrl+A,$localetimedate|F5")
@@ -543,10 +546,10 @@ $statusupdate.add_Tick({
             
 $FastTextForm.add_Resize({
     if (equal $script:statusstripvisible $true) {
-    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (115 * $ctscale))
+    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (110 * $ctscale))
     }
     else {
-    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (95 * $ctscale))
+    dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (90 * $ctscale))
     }
     if ($FastTab.TabPages.Count -lt 1) {
         dialog hide $closetab
@@ -627,8 +630,8 @@ $mForm.Show()
 
             if (file ((path $FastTab.SelectedTab.Text)+'\'+$(name $FastTab.SelectedTab.Text)+'.pil'))
             {
-                 $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
-                 run $inv
+                start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
+
             }
             else {
                 if ($FastTab.SelectedTab.Text -ne "[$localenewtt]") {
@@ -636,19 +639,15 @@ $mForm.Show()
                         inifile open ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.pil')
                         inifile write compile inputfile $FastTab.SelectedTab.Text
                         inifile write compile outputfile ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.cmd')
-                 $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
-                       run $inv
+                start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
+
                     }
                     else { 
-                        
-                        $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
-                        run $inv
+                    start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
                     }
                 }
                 else {
-                    
-                    $inv = "powershell -ep bypass -windowstyle hidden -file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
-                     run $inv
+                 start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
                 }
             }    
         }
@@ -668,10 +667,8 @@ $mForm.Show()
               if ($(file $(string $FastTab.SelectedTab.Text)))
                 {
                     directory change $(path $(string $FastTab.SelectedTab.Text))
-                }
-                            
- $inv = "'start' 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' '-ep bypass -sta -file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34)'"            
-             run "& $inv"
+                }               
+start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34)"
              directory change $curdir
     }
       "$localedebug" {
@@ -706,12 +703,9 @@ $mForm.Show()
             }
             $curdir = $(curdir)
             directory change $(path $(string $FastTab.SelectedTab.Text))
-             $inv = "'start' 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' '-ep bypass -sta -file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34) $(chr 34)$(string $FastTab.SelectedTab.Text)$(chr 34) -cpath'"            
-      #     "'start' '$curdir\..\compile\dialogshell.exe' '$(chr 34)$(string $FastTab.SelectedTab.Text)$(chr 34)'"    
-     
             $StatusStrip1.items[0].Text = "DEBUGGING...."
-            run "& $inv"
-            #shell open $(string $FastTab.SelectedTab.Text)
+             start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34) $(chr 34)$(string $FastTab.SelectedTab.Text)$(chr 34) -cpath"
+
             directory change $curdir
             $StatusStrip1.items[0].Text = ""
         }
@@ -2031,7 +2025,7 @@ $FormPropertiesGrid.Rows.Add("TransparencyKey",$(iniread Form TransparencyKey))
 $FormPropertiesGrid.Rows.Add("UseWaitCursor",$(iniread Form UseWaitCursor))
 $FormPropertiesGrid.Rows.Add("VerticalScroll",$(iniread Form VerticalScroll))
 $FormPropertiesGrid.Rows.Add("Visible",$(iniread Form Visible))
-$.Rows.Add("WindowState",$(iniread Form WindowState))
+$FormPropertiesGrid.Rows.Add("WindowState",$(iniread Form WindowState))
 
             
             # $mFormObj.Elements = Import-Csv $openform
@@ -2187,7 +2181,7 @@ $FormPropertiesGrid.Rows.Add("TransparencyKey",$(iniread Form TransparencyKey))
 $FormPropertiesGrid.Rows.Add("UseWaitCursor",$(iniread Form UseWaitCursor))
 $FormPropertiesGrid.Rows.Add("VerticalScroll",$(iniread Form VerticalScroll))
 $FormPropertiesGrid.Rows.Add("Visible",$(iniread Form Visible))
-$.Rows.Add("WindowState",$(iniread Form WindowState))
+$FormPropertiesGrid.Rows.Add("WindowState",$(iniread Form WindowState))
 
             
             # $mFormObj.Elements = Import-Csv $openform
