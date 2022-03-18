@@ -209,12 +209,12 @@ $popup.forecolor = $light}
 #write-host ($StatusStrip1.Visible | out-string).trim()
 #write-host ($StatusStrip1.Visible | out-string)
     if ($StatusStrip1.Visible -eq $True) {
-        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 110)
-		dialog setpos $FastCover 51 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 109)
+        dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (110 * $ctscale))
+		dialog setpos $FastCover (51 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (109 * $ctscale))
     }
     else {
-        dialog setpos $FastTab 50 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 90)
-		dialog setpos $FastCover 51 0 (differ (dlgpos $FastTextForm "W") 15) (differ (dlgpos $FastTextForm "H") 89)
+        dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (90 * $ctscale))
+		dialog setpos $FastCover (51 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (89 * $ctscale))
     }
     if ($FastTab.TabPages.Count -lt 1) {
         dialog hide $closetab
@@ -224,7 +224,7 @@ $popup.forecolor = $light}
         dialog show $closetab
 		dialog hide $FastCover
         $closetab.BringToFront()
-        dialog setpos $closetab 25 (differ (dlgpos $FastTextForm w) 40) 25 25
+        dialog setpos $closetab (25 * $ctscale) (differ (dlgpos $FastTextForm w) (40 * $ctscale)) (25 * $ctscale) (25 * $ctscale)
     }
 	})
 	
