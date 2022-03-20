@@ -257,7 +257,7 @@ if ($checkbox5.checked -eq $true){
 	}
 	else{$paramstring = "-windowstyle hidden"}
 }
-$ctf1 = Get-Content -Path ([Environment]::GetFolderPath("ProgramFiles")+"\WindowsPowerShell\Modules\vds\vds.psm1") -Encoding UTF8 -ErrorAction SilentlyContinue
+$ctf1 = Get-Content -Path ([Environment]::GetFolderPath("System")+"\WindowsPowerShell\v1.0\Modules\vds\vds.psm1") -Encoding UTF8 -ErrorAction SilentlyContinue
 $ctf2 = Get-Content -Path $textbox1.text -Encoding UTF8 -ErrorAction SilentlyContinue
 
 	$header = "IF [%1]==[] (set file1=$(chr 36)null) ELSE (set file1=%1)
