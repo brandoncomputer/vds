@@ -259,7 +259,12 @@ public class Window
 
 $vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
 
-[xml]$xml = ""
+[xml]$xml = @"
+            <Window
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+            </Window>
+"@
 $dum = (New-Object System.Xml.XmlNodeReader $xml)
 $win = [Windows.Markup.XamlReader]::Load($dum)
 
@@ -4261,7 +4266,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.2.1'
+        return '0.3.2.2'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String
