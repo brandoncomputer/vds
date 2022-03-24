@@ -1,4 +1,4 @@
-
+$btscale = 1
 
 $mTheme = new-object System.Windows.Forms.ToolStripMenuItem
 $mTheme.name = "Themes"
@@ -209,12 +209,12 @@ $popup.forecolor = $light}
 #write-host ($StatusStrip1.Visible | out-string).trim()
 #write-host ($StatusStrip1.Visible | out-string)
     if ($StatusStrip1.Visible -eq $True) {
-        dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (110 * $ctscale))
-		dialog setpos $FastCover (51 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (109 * $ctscale))
+        dialog setpos $FastTab (50 * $btscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $btscale)) (differ (dlgpos $FastTextForm "H") (110 * $btscale))
+		dialog setpos $FastCover (51 * $btscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $btscale)) (differ (dlgpos $FastTextForm "H") (109 * $btscale))
     }
     else {
-        dialog setpos $FastTab (50 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (90 * $ctscale))
-		dialog setpos $FastCover (51 * $ctscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $ctscale)) (differ (dlgpos $FastTextForm "H") (89 * $ctscale))
+        dialog setpos $FastTab (50 * $btscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $btscale)) (differ (dlgpos $FastTextForm "H") (90 * $btscale))
+		dialog setpos $FastCover (51 * $btscale) 0 (differ (dlgpos $FastTextForm "W") (15 * $btscale)) (differ (dlgpos $FastTextForm "H") (89 * $btscale))
     }
     if ($FastTab.TabPages.Count -lt 1) {
         dialog hide $closetab
@@ -224,7 +224,7 @@ $popup.forecolor = $light}
         dialog show $closetab
 		dialog hide $FastCover
         $closetab.BringToFront()
-        dialog setpos $closetab (25 * $ctscale) (differ (dlgpos $FastTextForm w) (40 * $ctscale)) (25 * $ctscale) (25 * $ctscale)
+        dialog setpos $closetab (25 * $btscale) (differ (dlgpos $FastTextForm w) (40 * $btscale)) (25 * $btscale) (25 * $btscale)
     }
 	})
 	
