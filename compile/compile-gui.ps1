@@ -84,7 +84,7 @@ $MyForm.icon = "$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Unins
                 dialog property $TextBox10 Scrollbars "none" 
                 dialog property $TextBox10 acceptstab "" 
                 dialog property $TextBox10 acceptsreturn ""  #>
-		$epCheckBox = dialog add $MyForm CheckBox 100 20 100 20 "Bypass ep" 
+        $epCheckBox = dialog add $MyForm CheckBox 100 20 100 20 "Bypass ep" 
                 dialog property $CheckBox1 Appearance "Normal" 
                 dialog property $CheckBox1 Threestate ""  
         $CheckBox1 = dialog add $MyForm CheckBox 100 135 100 20 "x86" 
@@ -121,7 +121,7 @@ $MyForm.icon = "$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Unins
         $textbox8.text = $(iniread compile copyright)
         $textbox9.text = $(iniread compile trademark)
         $textbox10.text = $(iniread compile version)
-		if ($(iniread compile bypass) -eq 'False'){$epCheckBox.checked = $false}else{if ($(iniread compile ep) -eq 'True'){$epCheckBox.checked = $true}}
+        if ($(iniread compile bypass) -eq 'False'){$epCheckBox.checked = $false}else{if ($(iniread compile ep) -eq 'True'){$epCheckBox.checked = $true}}
         if ($(iniread compile x86) -eq 'False'){$checkbox1.checked = $false}else{if ($(iniread compile x86) -eq 'True'){$checkbox1.checked = $true}}
         if ($(iniread compile x64) -eq 'False'){$checkbox2.checked = $false}else{if ($(iniread compile x64) -eq 'True'){$checkbox2.checked = $true}}
         if ($(iniread compile sta) -eq 'False'){$checkbox3.checked = $false}else{if ($(iniread compile sta) -eq 'True'){$checkbox3.checked = $true}}
@@ -156,7 +156,7 @@ if ($args[1])
         $textbox8.text = $(iniread compile copyright)
         $textbox9.text = $(iniread compile trademark)
         $textbox10.text = $(iniread compile version)
-		if ($(iniread compile bypass) -eq 'False'){$epCheckBox.checked = $false}else{if ($(iniread compile ep) -eq 'True'){$epCheckBox.checked = $true}}
+        if ($(iniread compile bypass) -eq 'False'){$epCheckBox.checked = $false}else{if ($(iniread compile ep) -eq 'True'){$epCheckBox.checked = $true}}
         if ($(iniread compile x86) -eq 'False'){$checkbox1.checked = $false}else{if ($(iniread compile x86) -eq 'True'){$checkbox1.checked = $true}}
         if ($(iniread compile x64) -eq 'False'){$checkbox2.checked = $false}else{if ($(iniread compile x64) -eq 'True'){$checkbox2.checked = $true}}
         if ($(iniread compile sta) -eq 'False'){$checkbox3.checked = $false}else{if ($(iniread compile sta) -eq 'True'){$checkbox3.checked = $true}}
@@ -178,7 +178,7 @@ if ($args[1])
         inifile write compile copyright $textbox8.text
         inifile write compile trademark $textbox9.text
         inifile write compile version $textbox10.text
-		inifile write compile ep $epCheckBox.checked
+        inifile write compile ep $epCheckBox.checked
         inifile write compile x86 $checkbox1.checked
         inifile write compile x64 $checkbox2.checked
         inifile write compile sta $checkbox3.checked
@@ -189,37 +189,37 @@ if ($args[1])
         
      
         $button6.add_Click({
-			$seven = $null
+            $seven = $null
 $powerstring = ""
 if ($(ext $textbox2.text) -eq "ps1")
 {
-	if ($checkbox1.checked -eq $true) {
-		$powerstring = "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
-	}
-	else {
-		$powerstring = "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe"
-	}
-	
+    if ($checkbox1.checked -eq $true) {
+        $powerstring = "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
+    }
+    else {
+        $powerstring = "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe"
+    }
+    
 if ($epCheckBox.checked -eq $true)
 {
-	$paramstring = "-executionpolicy bypass"
+    $paramstring = "-executionpolicy bypass"
 }
 
 if ($checkbox3.checked -eq $true){
-	if ($(len $paramstring) -gt 0){
-	$paramstring += " -sta"
-	}
-	else{$paramstring = "-sta"}
+    if ($(len $paramstring) -gt 0){
+    $paramstring += " -sta"
+    }
+    else{$paramstring = "-sta"}
 }
 
 if ($checkbox5.checked -eq $true){
-	$seven = 7
-	if ($(len $paramstring) -gt 0){
-	$paramstring += " -windowstyle hidden"
-	}
-	else{$paramstring = "-windowstyle hidden"}
+    $seven = 7
+    if ($(len $paramstring) -gt 0){
+    $paramstring += " -windowstyle hidden"
+    }
+    else{$paramstring = "-windowstyle hidden"}
 }
-	
+    
 $ctf1 = Get-Content -Path ([Environment]::GetFolderPath("System")+"\WindowsPowerShell\v1.0\Modules\vds\vds.psm1") -Encoding UTF8 -ErrorAction SilentlyContinue
 $ctf2 = Get-Content -Path $textbox1.text -Encoding UTF8 -ErrorAction SilentlyContinue
 Remove-Item -path $textbox2.text -force
@@ -231,36 +231,36 @@ link "$($textbox2.text).lnk" $powerstring "" $textbox3.text "$paramstring -file 
 
 if ($(ext $textbox2.text) -eq "cmd")
 {
-			if ($checkbox1.checked -eq $true) {
-		$powerstring = "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
-	}
-	else {
-		$powerstring = "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe"
-	}
-	
+            if ($checkbox1.checked -eq $true) {
+        $powerstring = "C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
+    }
+    else {
+        $powerstring = "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe"
+    }
+    
 if ($epCheckBox.checked -eq $true)
 {
-	$paramstring = "-executionpolicy bypass"
+    $paramstring = "-executionpolicy bypass"
 }
 
 if ($checkbox3.checked -eq $true){
-	if ($(len $paramstring) -gt 0){
-	$paramstring += " -sta"
-	}
-	else{$paramstring = "-sta"}
+    if ($(len $paramstring) -gt 0){
+    $paramstring += " -sta"
+    }
+    else{$paramstring = "-sta"}
 }
 
 if ($checkbox5.checked -eq $true){
-	$seven = 7
-	if ($(len $paramstring) -gt 0){
-	$paramstring += " -windowstyle hidden"
-	}
-	else{$paramstring = "-windowstyle hidden"}
+    $seven = 7
+    if ($(len $paramstring) -gt 0){
+    $paramstring += " -windowstyle hidden"
+    }
+    else{$paramstring = "-windowstyle hidden"}
 }
 $ctf1 = Get-Content -Path ([Environment]::GetFolderPath("System")+"\WindowsPowerShell\v1.0\Modules\vds\vds.psm1") -Encoding UTF8 -ErrorAction SilentlyContinue
 $ctf2 = Get-Content -Path $textbox1.text -Encoding UTF8 -ErrorAction SilentlyContinue
 
-	$header = "IF [%1]==[] (set file1=$(chr 36)null) ELSE (set file1=%1)
+    $header = "IF [%1]==[] (set file1=$(chr 36)null) ELSE (set file1=%1)
 IF [%2]==[] (set file2=$(chr 36)null) ELSE (set file2=%2)
 IF [%3]==[] (set file3=$(chr 36)null) ELSE (set file3=%3)
 IF [%4]==[] (set file4=$(chr 36)null) ELSE (set file4=%4)
