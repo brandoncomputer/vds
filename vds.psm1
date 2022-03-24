@@ -257,6 +257,15 @@ public class Window
 }
 "@
 
+$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+[xml]$xml = ""
+$dum = (New-Object System.Xml.XmlNodeReader $xml)
+$win = [Windows.Markup.XamlReader]::Load($dum)
+
+$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+$global:ctscale = ($screen/$vscreen)
 
 $global:xmen = $false
 $global:excelinit = $false
@@ -748,10 +757,10 @@ function decrypt ($a, $b){
                          $Control = New-Object System.Windows.Forms.$c
                      }
                      if ($d -is [int]) {
-                         $Control.Top = $d
-                         $Control.Left = $e
-                         $Control.Width = $f
-                         $Control.Height = $g
+                         $Control.Top = $d * $ctscale
+                         $Control.Left = $e * $ctscale
+                         $Control.Width = $f * $ctscale
+                         $Control.Height = $g * $ctscale
                          $Control.Text = $h
                      }
                      if ($c -ne $null) {
@@ -818,6 +827,8 @@ function decrypt ($a, $b){
                  }
                  toolstrip {
                      $toolbuttons = New-Object System.Windows.Forms.ToolStrip
+					 $toolbuttons.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
+					 $toolbuttons.Height = $toolbuttons.Height * $ctscale
                      foreach ($split in $d.split(",")) {
                          if ($split -ne "-") {
                              $item = new-object System.Windows.Forms.ToolStripButton
@@ -873,10 +884,10 @@ function decrypt ($a, $b){
              $Form = [vdsForm] @{
              ClientSize = New-Object System.Drawing.Point 0,0}
              $Form.Text = $b
-             $Form.Top = $c
-             $Form.Left = $d
-             $Form.Width = $e
-             $Form.Height = $f
+             $Form.Top = $c * $ctscale
+              $Form.Left = $d * $ctscale
+             $Form.Width = $e * $ctscale
+             $Form.Height = $f * $ctscale
              return $Form
          }
          cursor {
@@ -969,10 +980,10 @@ function decrypt ($a, $b){
               $b.Text = $c
           }
           setpos {
-              $b.Top = $c
-              $b.Left = $d
-              $b.Width = $e
-              $b.Height = $f
+              $b.Top = $c * $ctscale
+              $b.Left = $d * $ctscale
+              $b.Width = $e * $ctscale
+              $b.Height = $f * $ctscale
           }
           settip {
               $t = New-Object System.Windows.Forms.Tooltip
@@ -1171,16 +1182,16 @@ function dlgname($a) {
 function dlgpos ($a,$b) {
     switch ($b) {
         T {
-            return $a.Top
+            return $a.Top / $ctscale
         }
         L {
-            return $a.Left
+            return $a.Left / $ctscale
         }
         W {
-            return $a.Width
+            return $a.Width / $ctscale
         }
         'H' {
-            return $a.Height
+            return $a.Height / $ctscale
         }
     }
 <#
@@ -3900,6 +3911,14 @@ function savedlg($a,$b,$c){
 #>  
 }
 
+function screeninfo($a) {
+	switch ($a) {
+	height{[System.Windows.Forms.SystemInformation]::VirtualScreen.height}
+	width {[System.Windows.Forms.SystemInformation]::VirtualScreen.width}
+	scale {return $ctscale}
+	}
+}
+
 function selected($a) {
     return CountRows($a.SelectedItems)
 <#
@@ -4242,7 +4261,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.1.9'
+        return '0.3.2.0'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String
