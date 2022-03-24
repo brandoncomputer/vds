@@ -4253,7 +4253,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.2.2'
+        return '0.3.2.0'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String
@@ -7672,6 +7672,25 @@ switch(ext $args[0]) {
             $a = [vds]::SetWindowPos($mFormGroupBox.handle, -1, $(winpos $mFormGroupBox.handle L), $(winpos $mFormGroupBox.handle T), $(winpos $mFormGroupBox.handle W), $(winpos $mFormGroupBox.handle H), 0x0040)
             $mFormObj.Elements = Import-Clixml $args[0]
             repaintForm | out-null
+			
+			$FastTab.TabPages.Add("[$localenewtt]")
+            $FastTab.SelectedIndex = ($FastTab.TabPages.Count - 1)
+            $FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
+            dialog property $FastText language $language
+            dialog property $FastText dock "Fill"
+          #  dialog property $FastText backcolor "Silver"
+          #  (dialog properties $FastText | Out-File c:\temp\FastText.txt)
+            $FastTab.SelectedTab.Controls.Add($FastText)
+            if ($global:theme -eq "Dark")
+            {$FastText.ForeColor = $light
+            $FastText.BackColor = $dark
+            $FastText.IndentBackColor = $dark}
+            if ($global:theme -eq "Light"){
+            $FastText.ForeColor = $dark
+            $FastText.BackColor = $light
+            $FastText.IndentBackColor = $light}
+            $init.enabled = $true
+			
         }
     }
 
