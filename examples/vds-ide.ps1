@@ -25,25 +25,6 @@ $host.ui.RawUI.WindowTitle = "DialogShell $(sysinfo dsver)"
 $global:language = "DialogShell"
 $global:theme = "none"
 
-if ($(not $(file [Environment]::GetFolderPath("MyDocuments")+"\DialogShell"))) {
-    directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell")
-    directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
-    directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-US")
-    directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\res")
-    directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\elements")
-    file copy ("$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\res\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\res")
-    file copy ("$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\elements\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\elements")
-    file copy ("$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\examples\*.ds1") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
-    file copy ("$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\examples\*.mdb") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
-    file copy ("$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\examples\en-US\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-US")
-    $items = Get-ChildItem -Path ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
-    foreach ($item in $items) { 
-        if ($(trim $(ext $(string $item))) -eq 'ds1') {
-           $item.FullName | Out-File [Environment]::GetFolderPath("MyDocuments")+"\DialogShell\$(name $item.FullName).dsproj" 
-        }
-    }
-}
-
 $global:popuprtf = $true
 
 $global:designribbon = $false
