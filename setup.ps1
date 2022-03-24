@@ -166,7 +166,7 @@ $MyForm.icon = "$(curdir)\setup\res\cog_go.ico"}
                     registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$(string $Label2.Text)\res\application.ico"
                     registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\" "Open"
                     registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\" "Command"
-                    registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(string $Label2.Text)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+                    registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(string $Label2.Text)\examples\vds-ide-noscale.ps1$(chr 34) $(chr 34)%1$(chr 34)"
                    # registry newkey "HKLM:\Software\Classes\" .pil
                    # registry newitem "HKLM:\Software\Classes\.pil\" "(Default)" String "DialogShell.Compile"
                    # registry newkey "HKLM:\Software\Classes\" "DialogShell.Compile"
