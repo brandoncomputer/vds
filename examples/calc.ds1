@@ -1,8 +1,8 @@
     $calc = dialog create "Admin Calculator" 0 0 148 229
     $calc.FormBorderStyle = 6
     
-    $calc.maximumsize = new-object System.Drawing.Size(148,229)
-    $calc.minimumsize = new-object System.Drawing.Size(148,229)
+    $calc.maximumsize = new-object System.Drawing.Size((148 * $(screeninfo scale)),(229 * $(screeninfo scale)))
+    $calc.minimumsize = new-object System.Drawing.Size((148 * $(screeninfo scale)),(229 * $(screeninfo scale)))
     $TextBox1 = dialog add $calc textbox 5 5 100 20 "" 
     $ComboBox1 = dialog add $calc combobox 5 5 120 20 "" 
     $TextBox1.TextAlign = 'Right'
