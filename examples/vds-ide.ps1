@@ -612,7 +612,11 @@ $mForm.Show()
 }
 		}
 		else{if ($(ask "Screen Scale must be 100%. Would you like to launch another session in a compatible mode?") -eq "Yes"){
+			if ($(ext $FastTab.SelectedTab.Text) -eq "ds1") {
 			start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).$(ext $FastTab.SelectedTab.Text)$(chr 34)"
+			}
+			else
+			{start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34)"}
 		}}
         }
    "$localecompile" {
