@@ -3952,13 +3952,27 @@ function selenium ($a,$b,$c,$d) {
             $global:selenium.Navigate().GoToURL($b) 
         }
         get {
-            return $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]")
+			if ($c -ne $null){
+				return $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]")
+			else {
+				return $global:selenium.FindElementsByXPath($b)
+			}
         }
         set {
-            $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").SendKeys($d)
+			if ($d -ne $null) {
+				$global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").SendKeys($d)
+			}
+			else {
+				$global:selenium.FindElementsByXPath($b).SendKeys($c)
+			}
         }
         click {
-            $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").Click()
+			if ($c -ne $null) {
+				$global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").Click()
+			}
+			else {
+				$global:selenium.FindElementsByXPath($b).Click()
+			}
         }
         stop {
             $global:selenium.Close()
@@ -4266,7 +4280,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.2.2'
+        return '0.3.2.3'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String
