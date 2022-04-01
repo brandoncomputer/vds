@@ -203,6 +203,32 @@ public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 }
 "@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives,System.Windows.Forms.Primitives
 
+Add-Type @"
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.ComponentModel;
+public class vdsForm:Form {
+[DllImport("user32.dll")]
+public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+[DllImport("user32.dll")]
+public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    protected override void WndProc(ref Message m) {
+        base.WndProc(ref m);
+        if (m.Msg == 0x0312) {
+            int id = m.WParam.ToInt32();    
+            foreach (Control item in this.Controls) {
+                if (item.Name == "hotkey") {
+                    item.Text = id.ToString();
+                }
+            }
+        }
+    }   
+}
+"@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives
+
+
 Add-Type -TypeDefinition @"
 //"
 using System;
@@ -3954,6 +3980,7 @@ function selenium ($a,$b,$c,$d) {
         get {
 			if ($c -ne $null){
 				return $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]")
+			}
 			else {
 				return $global:selenium.FindElementsByXPath($b)
 			}
