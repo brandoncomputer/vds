@@ -201,7 +201,33 @@ public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
         }
     }   
 }
+"@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives,System.Windows.Forms.Primitives
+
+Add-Type @"
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.ComponentModel;
+public class vdsForm:Form {
+[DllImport("user32.dll")]
+public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+[DllImport("user32.dll")]
+public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    protected override void WndProc(ref Message m) {
+        base.WndProc(ref m);
+        if (m.Msg == 0x0312) {
+            int id = m.WParam.ToInt32();    
+            foreach (Control item in this.Controls) {
+                if (item.Name == "hotkey") {
+                    item.Text = id.ToString();
+                }
+            }
+        }
+    }   
+}
 "@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives
+
 
 Add-Type -TypeDefinition @"
 //"
@@ -257,7 +283,11 @@ public class Window
 }
 "@
 
-$global:ctscale = 1
+$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+$global:ctscale = ($screen/$vscreen)
 
 $global:xmen = $false
 $global:excelinit = $false
@@ -3939,13 +3969,28 @@ function selenium ($a,$b,$c,$d) {
             $global:selenium.Navigate().GoToURL($b) 
         }
         get {
-            return $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]")
+			if ($c -ne $null){
+				return $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]")
+			}
+			else {
+				return $global:selenium.FindElementsByXPath($b)
+			}
         }
         set {
-            $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").SendKeys($d)
+			if ($d -ne $null) {
+				$global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").SendKeys($d)
+			}
+			else {
+				$global:selenium.FindElementsByXPath($b).SendKeys($c)
+			}
         }
         click {
-            $global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").Click()
+			if ($c -ne $null) {
+				$global:selenium.FindElementsByXPath("//*[contains(@$b, '$c')]").Click()
+			}
+			else {
+				$global:selenium.FindElementsByXPath($b).Click()
+			}
         }
         stop {
             $global:selenium.Close()
@@ -4253,7 +4298,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.2.0'
+        return '0.3.2.4'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String
@@ -7717,5 +7762,4 @@ switch(ext $args[0]) {
 }
 
 dialog show $FastTextForm
-
 
