@@ -710,7 +710,6 @@ $winhost.Content = presentation page $page
 
 $LayoutListBox.add_SelectionChanged({$Details.DataContext = $LayoutListBox.DataContext})
 $SecondLayOutListBox.add_SelectionChanged({$Details.DataContext = $SecondLayOutListBox.DataContext})
-(dlgprops $LayoutListBox) | Out-File .\texbox.txt
 $TextBox1.add_KeyUp({
 $cc.Children.Clear();
 $cc.Children.Add([System.Windows.UIElement] (presentation page $TextBox1.Text))

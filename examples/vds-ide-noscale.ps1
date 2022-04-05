@@ -1,4 +1,4 @@
-Add-Type -AssemblyName System.Windows.Forms,Microsoft.VisualBasic,System.Drawing, presentationframework, presentationcore, WindowsBase, System.ComponentModel
+Add-Type -AssemblyName System.Windows.Forms,presentationframework, presentationcore
 
 Add-Type @"
 using System;
@@ -178,31 +178,8 @@ public static void RightClickAtPoint(int x, int y, int width, int height)
         License: Microsoft Limited Public License
 #>
 
-Add-Type @"
-using System;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using System.ComponentModel;
-public class vdsForm:Form {
-[DllImport("user32.dll")]
-public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
-[DllImport("user32.dll")]
-public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-    protected override void WndProc(ref Message m) {
-        base.WndProc(ref m);
-        if (m.Msg == 0x0312) {
-            int id = m.WParam.ToInt32();    
-            foreach (Control item in this.Controls) {
-                if (item.Name == "hotkey") {
-                    item.Text = id.ToString();
-                }
-            }
-        }
-    }   
-}
-"@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives,System.Windows.Forms.Primitives
-
+if ((get-host).version.major -eq 7) {
+	if ((get-host).version.minor -eq 0) {
 Add-Type @"
 using System;
 using System.Drawing;
@@ -227,7 +204,60 @@ public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
     }   
 }
 "@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives
-
+	}
+	else{
+Add-Type @"
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.ComponentModel;
+public class vdsForm:Form {
+[DllImport("user32.dll")]
+public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+[DllImport("user32.dll")]
+public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    protected override void WndProc(ref Message m) {
+        base.WndProc(ref m);
+        if (m.Msg == 0x0312) {
+            int id = m.WParam.ToInt32();    
+            foreach (Control item in this.Controls) {
+                if (item.Name == "hotkey") {
+                    item.Text = id.ToString();
+                }
+            }
+        }
+    }   
+}
+"@ -ReferencedAssemblies System.Windows.Forms,System.Drawing,System.Drawing.Primitives,System.Net.Primitives,System.ComponentModel.Primitives,Microsoft.Win32.Primitives,System.Windows.Forms.Primitives	
+	}
+}
+else {
+Add-Type @"
+using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using System.ComponentModel;
+public class vdsForm:Form {
+[DllImport("user32.dll")]
+public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vk);
+[DllImport("user32.dll")]
+public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    protected override void WndProc(ref Message m) {
+        base.WndProc(ref m);
+        if (m.Msg == 0x0312) {
+            int id = m.WParam.ToInt32();    
+            foreach (Control item in this.Controls) {
+                if (item.Name == "hotkey") {
+                    item.Text = id.ToString();
+                }
+            }
+        }
+    }   
+}
+"@ -ReferencedAssemblies System.Windows.Forms,System.Drawing
+}
 
 Add-Type -TypeDefinition @"
 //"
@@ -803,6 +833,7 @@ function decrypt ($a, $b){
                  menustrip { 
                      if ($global:xmen -ne $true) {
                          $global:menuribbon = new-object System.Windows.Forms.MenuStrip
+						 $menuribbon.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
                          $b.Controls.Add($global:menuribbon)
                          $global:xmen = $true
                      }
@@ -833,10 +864,7 @@ function decrypt ($a, $b){
                              $item.text = $split
                              $item.Add_Click({
                                      &menuitemclick $this
-                             })
-                             $item.Add_MouseUp({
-                                     &menuitemmouseup $this
-                             })                              
+                             })                           
                          } 
                          else {
                              $item = new-object System.Windows.Forms.ToolStripSeparator
@@ -847,6 +875,13 @@ function decrypt ($a, $b){
                      }   
                      return $xmenutitle                  
                  }
+				 taskicon {
+					$taskicon = New-Object System.Windows.Forms.NotifyIcon
+					$taskicon.Text = $e
+					$taskicon.Icon = $d
+					$taskicon.Visible = $true
+					return $taskicon
+				 }
                  toolstrip {
                      $toolbuttons = New-Object System.Windows.Forms.ToolStrip
 					 $toolbuttons.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
@@ -932,7 +967,7 @@ function decrypt ($a, $b){
          }
          popup { 
                      $xpopup = New-Object System.Windows.Forms.ContextMenuStrip
-                     
+                     $xpopup.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
                      foreach ($split in $c.split(",")) {
                          if ($split -ne "-")
                          {   $item = new-object System.Windows.Forms.ToolStripMenuItem
@@ -949,9 +984,6 @@ function decrypt ($a, $b){
                             }
                              $item.text = $isplit[0]
                              $item.Add_Click({&menuitemclick $this})
-                             $item.Add_MouseUp({
-                                     &menuitemmouseup $this
-                             }) 
                          }
                          else {
                              $item = new-object System.Windows.Forms.ToolStripSeparator
@@ -1098,7 +1130,136 @@ function decrypt ($a, $b){
       #>  
 }
 
-function differ ($a,$b) {
+function dialogshell($a)
+{
+	switch ($a){
+		"ide" {
+			if ((get-host).version.major -eq 7) {
+				start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)"
+			}
+			else {
+				start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)"
+			}
+		}
+		"register"{
+			If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {    
+				console "Please run powershell elevated to invoke this command."
+			}
+			else {
+				if ((get-host).version.major -eq 7) {
+					registry newkey  "HKLM:\Software\Classes\" .ds1
+					registry newitem "HKLM:\Software\Classes\.ds1\" "(Default)" String "DialogShell.Script"
+					registry newkey "HKLM:\Software\Classes\" "DialogShell.Script"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "DefaultIcon"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\DefaultIcon" "(Default)" String "$(chr 34)$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico$(chr 34)"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "Shell"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Open"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Edit"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Debug"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\Command" "(Default)" String "pwsh.exe -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					#																					
+					registry newkey "HKLM:\Software\Classes\" .dsproj
+					registry newitem "HKLM:\Software\Classes\.dsproj\" "(Default)" String "DialogShell.Project"
+					registry newkey "HKLM:\Software\Classes\" "DialogShell.Project"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "DefaultIcon"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "Shell"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\" "Open"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newkey "HKLM:\Software\Classes\" .dsform
+					registry newitem "HKLM:\Software\Classes\.dsform\" "(Default)" String "DialogShell.Form"
+					registry newkey "HKLM:\Software\Classes\" "DialogShell.Form"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "Shell"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "DefaultIcon"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\application.ico"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\" "Open"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide-noscale.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					directory create "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
+					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("pwsh.exe") ("$(path $(Get-Module -ListAvailable vds).path)\examples") ("$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)")
+                    link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("pwsh.exe") ("$(path $(Get-Module -ListAvailable vds).path)\compile") ("$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34)")
+				}
+				else {
+					registry newkey  "HKLM:\Software\Classes\" .ds1
+					registry newitem "HKLM:\Software\Classes\.ds1\" "(Default)" String "DialogShell.Script"
+					registry newkey "HKLM:\Software\Classes\" "DialogShell.Script"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "DefaultIcon"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\DefaultIcon" "(Default)" String "$(chr 34)$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico$(chr 34)"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "Shell"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Open"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Edit"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Debug"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\Command" "(Default)" String "powershell.exe -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					#																					
+					registry newkey "HKLM:\Software\Classes\" .dsproj
+					registry newitem "HKLM:\Software\Classes\.dsproj\" "(Default)" String "DialogShell.Project"
+					registry newkey "HKLM:\Software\Classes\" "DialogShell.Project"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "DefaultIcon"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "Shell"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\" "Open"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newkey "HKLM:\Software\Classes\" .dsform
+					registry newitem "HKLM:\Software\Classes\.dsform\" "(Default)" String "DialogShell.Form"
+					registry newkey "HKLM:\Software\Classes\" "DialogShell.Form"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "Shell"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "DefaultIcon"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\application.ico"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\" "Open"
+					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\" "Command"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "powershell.exe  -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide-noscale.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					directory create "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
+					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("powershell.exe") ("$(path $(Get-Module -ListAvailable vds).path)\examples") ("$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)")
+                    link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("powershell.exe") ("$(path $(Get-Module -ListAvailable vds).path)\compile") ("$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34)")					
+				}
+			
+			    directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell")
+				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\plugins")
+				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\wizards")
+				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
+				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-US")
+				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\res")
+				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\elements")
+				file copy ("$(path $(Get-Module -ListAvailable vds).path)\res\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\res")
+				file copy ("$(path $(Get-Module -ListAvailable vds).path)\plugins\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\plugins")
+				file copy ("$(path $(Get-Module -ListAvailable vds).path)\wizards\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\wizards")
+				file copy ("$(path $(Get-Module -ListAvailable vds).path)\elements\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\elements")
+				file copy ("$(path $(Get-Module -ListAvailable vds).path)\examples\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
+				file copy ("$(path $(Get-Module -ListAvailable vds).path)\examples\en-us\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-us")
+			
+			}
+		}
+		"unregister"
+		{
+			if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {    
+				console "Please run powershell elevated to invoke this command."
+			}
+			else {
+				registry deletekey "HKLM:\Software\Classes\.ds1"
+				registry deletekey "HKLM:\Software\Classes\DialogShell.Script"
+				registry deletekey "HKLM:\Software\Classes\.dsproj"
+				registry deletekey "HKLM:\Software\Classes\DialogShell.Project"
+				registry deletekey "HKLM:\Software\Classes\.dsform"
+				registry deletekey "HKLM:\Software\Classes\DialogShell.Form"
+				directory delete "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
+			}
+		}
+	}
+}
+
+function differ($a,$b) {
     return $a - $b
 <#
     .SYNOPSIS
@@ -2705,8 +2866,8 @@ function info($a,$b) {
  }
 
 
-function input($a,$b) {
-    $input = [Microsoft.VisualBasic.Interaction]::InputBox($a,$b)
+function input($a,$b,$c) {
+    $input = [Microsoft.VisualBasic.Interaction]::InputBox($a,$b,$c)
     return $input
 <#
     .SYNOPSIS
@@ -3855,6 +4016,9 @@ function resource ($a,$b,$c) {
             $import = [System.IO.File]::ReadAllBytes($b)
             return [System.Convert]::ToBase64String($import)
         }
+		encode {
+			return [System.Convert]::ToBase64String($b)
+		}
         export{
             $export = [System.Convert]::FromBase64String($b)
             [System.IO.File]::WriteAllBytes($c,$export)
@@ -4257,11 +4421,14 @@ function sum($a,$b) {
 #>
 } #partial implementation - only accepts two params
 
+function dsr(){
+	return $args[0]
+}
+
 function sysinfo($a) {
     switch ($a) {
         freemem {
-            $return = Get-WmiObject Win32_OperatingSystem | fl FreePhysicalMemory | Out-String
-            return $return.split(':')[1].Trim() 
+			return (Get-CIMInstance Win32_OperatingSystem | Select FreePhysicalMemory).FreePhysicalMemory
         } 
         pixperin {
         return $(regread 'hkcu:\Control Panel\Desktop\WindowMetrics' 'AppliedDpi')
@@ -4298,7 +4465,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.2.4'
+        return '0.3.3.0'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String
@@ -4315,6 +4482,9 @@ function sysinfo($a) {
         language {
             return GET-WinSystemLocale |Select-Object -expandproperty DisplayName
         }
+		scale {
+			return $ctscale
+		}
     }
 <#
     .SYNOPSIS
@@ -4883,8 +5053,13 @@ function winclass($a) {
 #>
 } 
 
-function windir($a) {
+function windir($a,$b) {
+	if ($a -like "s"){
+		return [System.Environment]::SystemDirectory
+	}
+	else {
     return $(env windir)
+	}
 <#
     .SYNOPSIS
     Returns the windows directory
@@ -5334,21 +5509,13 @@ function zip($a,$b,$c)
     https://dialogshell.com/vds/help/index.php/zero
 #>
 }
-
-$path = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $path
-[Environment]::CurrentDirectory = $path
+directory change "$(path $(Get-Module -ListAvailable vds).path)\examples"
 
 $ErrorActionPreference = "SilentlyContinue"
 $global:findregtabs = 0..100
 $global:replaceregtabs = 0..100
 
-if ($(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\"  "InstallLocation")){
-directory change "$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\"  "InstallLocation")\examples"
-}
-else{
-directory change (path $host.ui.RawUI.WindowTitle)
-}
+
 #info $(curdir)
 #[System.GC]::Collect()
 <#
@@ -5370,11 +5537,11 @@ $global:designribbon = $false
 
 $examplepath = [Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples"
 $wizardpath = [Environment]::GetFolderPath("MyDocuments")+"\DialogShell\wizards"
-if ($(file "c:\vds\trunk\plugins")){
-$plugins = "c:\vds\trunk\plugins"}
+if ($(file ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\plugins"))){
+$global:plugins = ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\plugins")}
 else
-{$plugins = "$(curdir)\..\plugins"}
-$docpath = [Environment]::GetFolderPath("MyDocuments")+"\DialogShell"
+{$global:plugins = "$(path $(Get-Module -ListAvailable vds).path)\plugins"}
+$docpath = [Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples"
 $global:nopop = $false
 
 
@@ -5397,6 +5564,7 @@ $localesavett       = (iniread locale Savett)
 $localesaveas       = (iniread locale SaveAs)
 $localeprint        = (iniread locale Print)
 $localeprinttt      = (iniread locale Printtt)
+$localeexit			= (iniread locale Exit)
 $localeedit         = (iniread locale Edit)
 $localeundo         = (iniread locale Undo)
 $localeundott       = (iniread locale Undott)
@@ -5436,22 +5604,19 @@ $localeplugins      = "&Plugins"
 $localedialogshell = "DialogShell"
 
 #lgplv3 - fork located at https://github.com/brandoncomputer/FastColoredTextBox
-if ($(file("$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\examples\FastColoredTextBox.dll")))
-{[Reflection.Assembly]::LoadFile("$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\examples\FastColoredTextBox.dll") | Out-Null}
-else
-{[Reflection.Assembly]::LoadFile("$(curdir)\FastColoredTextBox.dll") | out-null
-}
+
+[Reflection.Assembly]::LoadFile("$(curdir)\FastColoredTextBox.dll") | out-null
+
 
 $script:lastfind = ""
 $script:curdoc = ""
-
 
 $btscale = 1
 
 #$global:ctscale = ($screen/$vscreen)
 
 $FastTextForm       = dialog create "Visual DialogShell" 0 0 600 480
-$FastTextForm.Font = New-Object System.Drawing.Font("Calibri",8)
+#$FastTextForm.Font = New-Object System.Drawing.Font("Calibri",8)
 $mAssignList = dialog add $FastTextForm ComboBox 0 100 100 50
 dialog hide $mAssignList
 
@@ -5467,7 +5632,7 @@ $toolstrip1.Height = $toolstrip1.Height * $ctscale
 #$toolstrip1.Items["$localenew"].margin = new-object System.Windows.Forms.Padding(6, 0, 6, 0)
 
 
-$file               = dialog add $FastTextForm menustrip "$localefile" ("$localenew|Ctrl+N|$(curdir)\..\res\page_add.png,$localeopen|Ctrl+O|$(curdir)\..\res\folder_page_white.png,$localesave|Ctrl+S|$(curdir)\..\res\disk.png,$localesaveas,-,$localeprint|Ctrl+P|$(curdir)\..\res\printer.png,-,E&xit")
+$file               = dialog add $FastTextForm menustrip "$localefile" ("$localenew|Ctrl+N|$(curdir)\..\res\page_add.png,$localeopen|Ctrl+O|$(curdir)\..\res\folder_page_white.png,$localesave|Ctrl+S|$(curdir)\..\res\disk.png,$localesaveas,-,$localeprint|Ctrl+P|$(curdir)\..\res\printer.png,-,$localeexit|Alt+F4")
 $edit               = dialog add $FastTextForm menustrip "$localeedit" ("$localeundo|Ctrl+Z|$(curdir)\..\res\arrow_undo.png,-,$localecut|Ctrl+X|$(curdir)\..\res\cut.png,$localecopy|Ctrl+C|$(curdir)\..\res\page_copy.png,$localepaste|Ctrl+V|$(curdir)\..\res\paste_plain.png,-,$localefind|Ctrl+F|$(curdir)\..\res\page_find.png,$localereplace|Ctrl+H,&Go To...|Ctrl+G,$localeselectall|Ctrl+A,$localetimedate|F5")
 $view               = dialog add $FastTextForm menustrip "$localeview" "$localestatusbar,-,50%|Ctrl+5,100%|Ctrl+0,200%|Ctrl+2" 
 $build              = dialog add $FastTextForm menustrip "$localebuild" ("$localedialogshell|F3|$(curdir)\..\res\terminal.ico,$localedesigner|F2|$(curdir)\..\res\icon.ico,$localedebug|F8|$(curdir)\..\res\bug_go.png,$localecompile|F9|$(curdir)\..\res\compile.ico")
@@ -5898,76 +6063,116 @@ function global:menuitemclick ($menu) {
             run 'start https://dialogshell.com/vds/help/index.php/Special:AllPages'
         }
         "$localedesigner" {
+			if ($FastTab.TabPages.Count -eq 0) {
+				$FastTab.TabPages.Add("[$localenewtt]")
+				$FastTab.SelectedIndex = ($FastTab.TabPages.Count - 1)
+				$FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
+				dialog property $FastText language $language
+				dialog property $FastText dock "Fill"
+				$FastTab.SelectedTab.Controls.Add($FastText)
+				if ($global:theme -eq "Dark")
+				{$FastText.ForeColor = $light
+				$FastText.BackColor = $dark
+				$FastText.IndentBackColor = $dark}
+				if ($global:theme -eq "Light"){
+				$FastText.ForeColor = $dark
+				$FastText.BackColor = $light
+				$FastText.IndentBackColor = $light}
+				$init.enabled = $true
+			}
 
-        if ($FastTab.TabPages.Count -eq 0) {
-            $FastTab.TabPages.Add("[$localenewtt]")
-            $FastTab.SelectedIndex = ($FastTab.TabPages.Count - 1)
-            $FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
-            dialog property $FastText language $language
-            dialog property $FastText dock "Fill"
-          #  (dialog properties $FastText | Out-File c:\temp\FastText.txt)
-            $FastTab.SelectedTab.Controls.Add($FastText)
-            if ($global:theme -eq "Dark")
-            {$FastText.ForeColor = $light
-            $FastText.BackColor = $dark
-            $FastText.IndentBackColor = $dark}
-            if ($global:theme -eq "Light"){
-            $FastText.ForeColor = $dark
-            $FastText.BackColor = $light
-            $FastText.IndentBackColor = $light}
-            $init.enabled = $true
-}
-        
-      <#   run (get-content "'$(curdir)\..\DialogShell Designer.ds1'") | out-string
-          $inv = "'$(curdir)\..\DialogShell Designer.exe'"
-        run "&" $inv" #>
-		if ($ctscale -eq 1)
-		{
-		
-$global:eleOK = "true"
-
-if ($global:dd -eq "false")
-{
-$global:dd = "true"
-DesignWindow
-elementswindow
-$mForm.Show()
-        $mFormList.items.clear()
-        $content = (get-content "$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).dsproj" | select-object -skip 1)
-        $mFormList.items.AddRange($content)
-[vds]::SetWindowPos($mForm.handle, -1, $(winpos $mForm.handle L), $(winpos $mForm.handle T), $(winpos $mForm.handle W), $(winpos $mForm.handle H), 0x0040)
-[vds]::SetWindowPos($elements.handle, -1, $(winpos $elements.handle L), $(winpos $elements.handle T), $(winpos $elements.handle W), $(winpos $elements.handle H), 0x0040)
-[vds]::SetWindowPos($mFormGroupBox.handle, -1, $(winpos $mFormGroupBox.handle L), $(winpos $mFormGroupBox.handle T), $(winpos $mFormGroupBox.handle W), $(winpos $mFormGroupBox.handle H), 0x0040)
-
-}
+			if ($ctscale -eq 1) {
+				$global:eleOK = "true"
+				if ($global:dd -eq "false") {
+					$global:dd = "true"
+					DesignWindow
+					elementswindow
+					$mForm.Show()
+					$mFormList.items.clear()
+					$content = (get-content "$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).dsproj" | select-object -skip 1)
+					$mFormList.items.AddRange($content)
+					[vds]::SetWindowPos($mForm.handle, -1, $(winpos $mForm.handle L), $(winpos $mForm.handle T), $(winpos $mForm.handle W), $(winpos $mForm.handle H), 0x0040)
+					[vds]::SetWindowPos($elements.handle, -1, $(winpos $elements.handle L), $(winpos $elements.handle T), $(winpos $elements.handle W), $(winpos $elements.handle H), 0x0040)
+					[vds]::SetWindowPos($mFormGroupBox.handle, -1, $(winpos $mFormGroupBox.handle L), $(winpos $mFormGroupBox.handle T), $(winpos $mFormGroupBox.handle W), $(winpos $mFormGroupBox.handle H), 0x0040)
+				}
+			}
+			else {
+				if ($(ask "Screen Scale must be 100%. Would you like to launch another session in a compatible mode?") -eq "Yes"){
+					switch ((get-host).version.major){
+						"7" {
+							if ($(ext $FastTab.SelectedTab.Text) -eq "ds1") {						
+								start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).$(ext $FastTab.SelectedTab.Text)$(chr 34)"
+							}
+							else {
+								start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34)"
+							}							
+						}
+				
+						default {
+							if ($(ext $FastTab.SelectedTab.Text) -eq "ds1") {						
+								start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).$(ext $FastTab.SelectedTab.Text)$(chr 34)"
+							}
+							else {
+								start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34)"
+							}
+						}
+					}
+				}
+			}	
 		}
-		else{info "Screen Scale must be 100%. Please adjust your monitor in windows settings and relaunch the IDE to continue."}
-        }
-   "$localecompile" {
-       cls
+		"$localecompile" {
+			switch ((get-host).version.major){
+				"7" {
+					if (file ((path $FastTab.SelectedTab.Text)+'\'+$(name $FastTab.SelectedTab.Text)+'.pil'))
+					{
+						start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
 
-            if (file ((path $FastTab.SelectedTab.Text)+'\'+$(name $FastTab.SelectedTab.Text)+'.pil'))
-            {
-                start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
+					}
+					else {
+						if ($FastTab.SelectedTab.Text -ne "[$localenewtt]") {
+							if ($FastTab.TabPages.Count -gt 0) {
+								inifile open ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.pil')
+								inifile write compile inputfile $FastTab.SelectedTab.Text
+								inifile write compile outputfile ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.cmd')
+						start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
 
-            }
-            else {
-                if ($FastTab.SelectedTab.Text -ne "[$localenewtt]") {
-                    if ($FastTab.TabPages.Count -gt 0) {
-                        inifile open ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.pil')
-                        inifile write compile inputfile $FastTab.SelectedTab.Text
-                        inifile write compile outputfile ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.cmd')
-                start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
+							}
+							else { 
+							start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
+							}
+						}
+						else {
+						 start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
+						}
+					}						
+				}
+		
+				default {
+					if (file ((path $FastTab.SelectedTab.Text)+'\'+$(name $FastTab.SelectedTab.Text)+'.pil'))
+					{
+						start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
 
-                    }
-                    else { 
-                    start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
-                    }
-                }
-                else {
-                 start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
-                }
-            }    
+					}
+					else {
+						if ($FastTab.SelectedTab.Text -ne "[$localenewtt]") {
+							if ($FastTab.TabPages.Count -gt 0) {
+								inifile open ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.pil')
+								inifile write compile inputfile $FastTab.SelectedTab.Text
+								inifile write compile outputfile ((path $FastTab.SelectedTab.Text)+'\'+(name $FastTab.SelectedTab.Text)+'.cmd')
+						start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).pil$(chr 34) $(chr 34)$(curdir)\..\compile$(chr 34)"
+
+							}
+							else { 
+							start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
+							}
+						}
+						else {
+						 start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\..\compile\compile-gui.ps1$(chr 34)"
+						}
+					}
+				}
+
+			}			
         }
         "100%" {
             $FastTab.SelectedTab.Controls[0].Zoom = 100
@@ -5985,8 +6190,15 @@ $mForm.Show()
               if ($(file $(string $FastTab.SelectedTab.Text)))
                 {
                     directory change $(path $(string $FastTab.SelectedTab.Text))
-                }               
-start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34)"
+                }
+			switch ((get-host).version.major){
+				"7" {
+					start-process -filepath pwsh.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34)"
+				}
+				default {
+					start-process -filepath powershell.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34)"
+				}
+			}				
              directory change $curdir
     }
       "$localedebug" {
@@ -6022,8 +6234,17 @@ start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.ex
             $curdir = $(curdir)
             directory change $(path $(string $FastTab.SelectedTab.Text))
             $StatusStrip1.items[0].Text = "DEBUGGING...."
-             start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34) $(chr 34)$(string $FastTab.SelectedTab.Text)$(chr 34) -cpath"
+			switch ((get-host).version.major){
+				"7" {
+					start-process -filepath pwsh.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34) $(chr 34)$(string $FastTab.SelectedTab.Text)$(chr 34) -cpath"
 
+				}
+				default {
+					start-process -filepath powershell.exe -argumentlist '-ep bypass','-sta',"-file $(chr 34)$curdir\..\compile\dialogshell.ps1$(chr 34) $(chr 34)$(string $FastTab.SelectedTab.Text)$(chr 34) -cpath"
+
+				}
+			}	
+             
             directory change $curdir
             $StatusStrip1.items[0].Text = ""
         }
@@ -6123,47 +6344,10 @@ start-process -filepath C:\Windows\System32\WindowsPowerShell\v1.0\powershell.ex
         "$localeprint" {
             $FastTab.SelectedTab.Controls[0].Print()
         }
-        "E&xit" {
-            while ($FastTab.TabPages.Count -gt 0) {
-                if ($FastTab.SelectedTab.Controls[0].IsChanged -eq $true){
-                    $ask = (ask "$localesavechanges" $FastTab.SelectedTab.Text)
-                    if ($ask -eq "Yes") {
-                        if (equal $FastTab.SelectedTab.Text "[$localenewtt]") {
-                            $saveFile = (savedlg "$localedialog")
-                            if ($saveFile) {
-                                if (equal (ext $saveFile) "dsproj") {
-                                    $saveFile = "$(path $saveFile)\$(name $saveFile).ds1"
-                                    }
-                                    $saveFile | Out-File "$(path $saveFile)\$(name $saveFile).dsproj"
-                                    add-content -path "$(path $saveFile)\$(name $saveFile).dsproj" -value $mAssignList.Items | out-string
-                                
-                        
-                                    $ascii = new-object System.Text.ASCIIEncoding
-                                    $FastTab.SelectedTab.Controls[0].SaveToFile($saveFile,$ascii)
-                                    $FastTab.SelectedTab.Controls[0].IsChanged = $false
-                                
-                            }
-                        }
-                        else {
-                        $saveFile | Out-File "$(path $saveFile)\$(name $saveFile).dsproj"
-                            add-content -path "$(path $saveFile)\$(name $saveFile).dsproj" -value $mAssignList.Items | out-string
-                            $saveFile = $FastTab.SelectedTab.Text
-                            $ascii = new-object System.Text.ASCIIEncoding
-                            $FastTab.SelectedTab.Controls[0].SaveToFile($saveFile,$ascii)
-                            $FastTab.SelectedTab.Controls[0].IsChanged = $false
-                        }
-                        $FastTab.SelectedTab.Controls[0].dispose()
-                        $FastTab.SelectedTab.dispose()
-                        $init.enabled = $true
-                    }
-                    else {
-                        $FastTab.SelectedTab.Controls[0].dispose()
-                        $FastTab.SelectedTab.dispose()
-                        $init.enabled = $true
-                    }
-                }
+        "$localeexit" {
+
             dialog close $FastTextForm
-            }
+     
         }
         "$localeundo" {$FastTab.SelectedTab.Controls[0].Undo()}
         "$localecut" {$FastTab.SelectedTab.Controls[0].Cut()}
@@ -7100,10 +7284,10 @@ $mFooterString+= "
 if ($args[0])
 
 
-{$mform.icon = '..\res\icon.ico'
+{$mform.icon = (curdir)+"\..\res\icon.ico"
 }
 else{
-    $dir = string $(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell" "InstallLocation")
+    $dir = string (path $(Get-Module -ListAvailable vds).path)
     $mform.icon = "$dir\res\icon.ico"
 }
 $mForm.AutoSize = $true 
@@ -7251,6 +7435,7 @@ $openform = $mFormList.selecteditem
             inifile open $openform
             $mFormXTextBox2.Text = $(iniread Form Object)
             $mFormXTextBox.Text = $(iniread Form Text)
+			$mFormGroupBox = $(iniread Form Text)
             $mFormGroupBox.Height = $(iniread Form Height)
             $mFormGroupBox.Width = $(iniread Form Width)
             $mFormGroupBox.Text = $mFormXTextBox.text
@@ -7554,7 +7739,7 @@ window close $(winexists "Dialog Elements")
 
  function DesignWindow{
 $Global:mFormGroupBox = dialog create $mFormXTextBox.text 0 0 $global:mfgbx $global:mfgby
-    $dir = string $(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell" "InstallLocation")
+    $dir = string "$(path $(Get-Module -ListAvailable vds).path)"
     $mFormGroupBox.icon = "$dir\res\application.ico"
 
 $mFormGroupBox.AllowDrop = $true
@@ -7655,9 +7840,69 @@ function elementswindow{
 
         $mWebBrowser1 = dialog add $elements WebBrowser 0 0 300 500  
                 $mWebBrowser1.Dock = "Fill"
-                $dir = string $(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell" "InstallLocation")
-                 $psr = -join($dir,"\Elements")
-                $mWebBrowser1.Navigate($psr)
+				
+				#--------------------
+				    $buttonout          = "Text=Button$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.button?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\Button.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $checkboxout        = "Text=$(cr)Appearance=Normal$(cr)Threestate=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.checkbox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\CheckBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $checkedlistboxout  = "CheckOnClick=$(cr)UseTabStops=True$(cr)Multicolumn=$(cr)Selectionmode=One$(cr)Sorted=False$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.checkedlistbox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\CheckedListBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $comboboxout        = "DropDownStyle=DropDown$(cr)Text=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.combobox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\ComboBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $datagridout        = "[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagrid?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\DataGrid.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $datagridviewout    = "[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.datagridview?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\DataGridView.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $datetimepickerout  = "Mindate=$(cr)Maxdate=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.DateTimePicker?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\DateTimePicker.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $groupboxout        = "Text=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.groupbox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\GroupBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $hscrollbarout      = "Value=50$(cr)LargeChange=10$(cr)SmallChange=1$(cr)Minimum=0$(cr)Maximum=100$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.hscrollbar?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\HScrollBar.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $labelout           = "Text=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.label?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\Label.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $linklabelout       = "Text=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.linklabel?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\LinkLabel.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $listboxout         = "Sorted=$(cr)Selectionmode=One$(cr)Multicolumn=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.listbox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\ListBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $maskedtextboxout   = "Mask=00/00/0000$(cr)Text=00/00/0000$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.maskedtextbox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\MaskedTextBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $menustripout       = "[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.menustrip?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\MenuStrip.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $monthcalendarout   = "Mindate=$(cr)Maxdate=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.monthcalendar?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\MonthCalendar.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $numericupdownout   = "DecimalPlaces=0$(cr)Increment=1$(cr)Maximum=100$(cr)Minimum=0$(cr)Value=0$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.numericupdown?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\NumericUpDown.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $panel              = "BorderStyle=Fixed3D$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.panel?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\Panel.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $pictureboxout      = "BorderStyle=Fixed3D$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.picturebox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\PictureBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $progressbarout     = "Minimum=0$(cr)Maximum=100$(cr)Value=0$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.progressbar?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\ProgressBar.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $radiobuttonout     = "Text=RadioButton$(cr)Checked=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.radiobutton?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\RadioButton.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $richtextboxout     = "Text=RichTextBox$(cr)Dock=None$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.richtextbox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\RichTextBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $statusstripout     = "Text=statusstrip$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.statusstrip?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\StatusStrip.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $textboxout         = "Text=Textbox$(cr)Multiline=$(cr)Maxlength=0$(cr)Wordwrap=true$(cr)Scrollbars=none$(cr)acceptstab=$(cr)acceptsreturn=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.textbox?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\TextBox.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $toolstripout       = "Text=toolstrip$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.toolstrip?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\ToolStrip.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $trackbarout        = "Value=5$(cr)Minimum=0$(cr)Maximum=10$(cr)LargeChange=5$(cr)SmallChange=1$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.trackbar?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\TrackBar.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $treeviewout        = "[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.treeview?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\TreeView.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $vscrollbarout      = "Value=50$(cr)LargeChange=10$(cr)SmallChange=1$(cr)Minimum=0$(cr)Maximum=100$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.vscrollbar?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\VScrollBar.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    $webbrowserout      = "Dock=None$(cr)Url=$(cr)[InternetShortcut]$(cr)IDList=$(cr)URL=https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.webbrowser?view=netframework-4.7.2$(cr)IconFile=$(path $(Get-Module -ListAvailable vds).path)\res\WebBrowser.ico$(cr)IconIndex=0$(cr)HotKey=0"
+                    
+					directory create "$(env temp)\elements"
+					
+                    $buttonout          | Out-File "$(env temp)\elements\Button.url"
+                    $checkboxout        | Out-File "$(env temp)\elements\CheckBox.url"    
+                    $checkedlistboxout  | Out-File "$(env temp)\elements\CheckedListBox.url"   
+                    $comboboxout        | Out-File "$(env temp)\elements\ComboBox.url"
+                    $datagridout        | Out-File "$(env temp)\elements\DataGrid.url"
+                    $datagridviewout    | Out-File "$(env temp)\elements\DataGridView.url"
+                    $datetimepickerout  | Out-File "$(env temp)\elements\DateTimePicker.url"
+                    $groupboxout        | Out-File "$(env temp)\elements\GroupBox.url"
+                    $hscrollbarout      | Out-File "$(env temp)\elements\HScrollBar.url"
+                    $labelout           | Out-File "$(env temp)\elements\Label.url"
+                    $linklabelout       | Out-File "$(env temp)\elements\LinkLabel.url"
+                    $listboxout         | Out-File "$(env temp)\elements\ListBox.url"
+                    $maskedtextboxout   | Out-File "$(env temp)\elements\MaskedTextBox.url"
+                    $menustripout       | Out-File "$(env temp)\elements\MenuStrip.url"
+                    $monthcalendarout   | Out-File "$(env temp)\elements\MonthCalendar.url"
+                    $numericupdownout   | Out-File "$(env temp)\elements\NumericUpDown.url"
+                    $panel              | Out-File "$(env temp)\elements\Panel.url"
+                    $pictureboxout      | Out-File "$(env temp)\elements\PictureBox.url"
+                    $progressbarout     | Out-File "$(env temp)\elements\ProgressBar.url"
+                    $radiobuttonout     | Out-File "$(env temp)\elements\RadioButton.url"
+                    $richtextboxout     | Out-File "$(env temp)\elements\RichTextBox.url"
+                    $statusstripout     | Out-File "$(env temp)\elements\StatusStrip.url"
+                    $textboxout         | Out-File "$(env temp)\elements\TextBox.url"
+                    $toolstripout       | Out-File "$(env temp)\elements\ToolStrip.url"
+                    $trackbarout        | Out-File "$(env temp)\elements\TrackBar.url"
+                    $treeviewout        | Out-File "$(env temp)\elements\TreeView.url"
+                    $vscrollbarout      | Out-File "$(env temp)\elements\VScrollBar.url"
+                    $webbrowserout      | Out-File "$(env temp)\elements\WebBrowser.url"				
+				#--------------------
+                $mWebBrowser1.Navigate("$(env temp)\elements")
            
         $elements.add_Closed({
             if ($eleOK -eq "true")
@@ -7717,25 +7962,6 @@ switch(ext $args[0]) {
             $a = [vds]::SetWindowPos($mFormGroupBox.handle, -1, $(winpos $mFormGroupBox.handle L), $(winpos $mFormGroupBox.handle T), $(winpos $mFormGroupBox.handle W), $(winpos $mFormGroupBox.handle H), 0x0040)
             $mFormObj.Elements = Import-Clixml $args[0]
             repaintForm | out-null
-			
-			$FastTab.TabPages.Add("[$localenewtt]")
-            $FastTab.SelectedIndex = ($FastTab.TabPages.Count - 1)
-            $FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
-            dialog property $FastText language $language
-            dialog property $FastText dock "Fill"
-          #  dialog property $FastText backcolor "Silver"
-          #  (dialog properties $FastText | Out-File c:\temp\FastText.txt)
-            $FastTab.SelectedTab.Controls.Add($FastText)
-            if ($global:theme -eq "Dark")
-            {$FastText.ForeColor = $light
-            $FastText.BackColor = $dark
-            $FastText.IndentBackColor = $dark}
-            if ($global:theme -eq "Light"){
-            $FastText.ForeColor = $dark
-            $FastText.BackColor = $light
-            $FastText.IndentBackColor = $light}
-            $init.enabled = $true
-			
         }
     }
 
@@ -7762,4 +7988,5 @@ switch(ext $args[0]) {
 }
 
 dialog show $FastTextForm
+
 

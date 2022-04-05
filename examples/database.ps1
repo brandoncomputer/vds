@@ -5,10 +5,12 @@
         $Button1 = dialog add $MyForm Button 214 28 75 23 "Add"  
         $Button2 = dialog add $MyForm Button 254 115 75 23 "Search"
         $SearchBox = dialog add $MyForm TextBox 254 28 75 23
+		
+		info "$(chr 34)Dbq=$(curdir)\vds.accdb$(chr 34)"
 
-$dbq = ('Dbq='+($(curdir))+'\vds.mdb')
+$dbq = ('Dbq='+($(curdir))+'\vds.accdb')
 
-Add-OdbcDsn -Name "VDS" -DriverName "Microsoft Access Driver (*.mdb)" -DsnType "User" -Platform "32-bit" -SetPropertyValue "$dbq"
+Add-OdbcDsn -Name "VDS" -DriverName "Microsoft Access Driver (*.mdb, *.accdb)" -DsnType "User" -Platform "64-bit" -SetPropertyValue "$dbq"
 
 database open vds
 

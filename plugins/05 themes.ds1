@@ -82,7 +82,7 @@ inifile write theme bl $global:bl
 
 	
 function normal {
-	inifile open .\themes.theme
+	inifile open "$plugins\themes.theme"
 	inifile write theme theme normal
 }
 
@@ -99,7 +99,7 @@ $global:gl = $(random 160 255)
 $global:bl = $(random 160 255)
 $global:dark = $(color rgb $global:rd $global:gd $global:bd)
 $global:light = $(color rgb $global:rl $global:gl $global:bl)
-inifile open .\themes.theme
+inifile open "$plugins\themes.theme"
 inifile write theme theme dark
 inifile write theme rd $global:rd
 inifile write theme gd $global:gd
@@ -153,7 +153,7 @@ $global:gl = $(random 160 255)
 $global:bl = $(random 160 255)
 $global:dark = $(color rgb $global:rd $global:gd $global:bd)
 $global:light = $(color rgb $global:rl $global:gl $global:bl)
-			inifile open .\themes.theme
+			inifile open "$plugins\themes.theme"
 inifile write theme theme light
 inifile write theme rd $global:rd
 inifile write theme gd $global:gd
@@ -241,7 +241,7 @@ function loadtheme {
 	$global:rl = (($(iniread theme rl))/1)
 	$global:gl = (($(iniread theme gl))/1)
 	$global:bl = (($(iniread theme bl))/1)
-inifile open .\themes.theme
+inifile open "$plugins\themes.theme"
 inifile write theme theme light
 inifile write theme rd $global:rd
 inifile write theme gd $global:gd
@@ -294,7 +294,7 @@ $dditem.BackColor = $light
 	$global:rl = (($(iniread theme rl))/1)
 	$global:gl = (($(iniread theme gl))/1)
 	$global:bl = (($(iniread theme bl))/1)
-inifile open .\themes.theme
+inifile open "$plugins\themes.theme"
 inifile write theme theme dark
 inifile write theme rd $global:rd
 inifile write theme gd $global:gd
@@ -339,7 +339,7 @@ $page.Controls[0].Language = "DialogShellDark"
 	}
 		}
 
-inifile open .\themes.theme		
+inifile open "$plugins\themes.theme"		
 loadtheme
 
 

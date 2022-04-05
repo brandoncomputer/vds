@@ -1,6 +1,6 @@
-directory change "$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\compile"
+directory change "$(path $(Get-Module -ListAvailable vds).path)\compile"
 $MyForm = dialog create "Script Packager" 0 0 389 300
-$MyForm.icon = "$(regread "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\DialogShell\" "InstallLocation")\res\compile.ico"
+$MyForm.icon = "$(path $(Get-Module -ListAvailable vds).path)\res\compile.ico"
     $TextBox1 = dialog add $MyForm TextBox 25 20 250 20 
     dialog settip $textbox1 "Inputfile" 
     $Button1 = dialog add $MyForm Button 25 275 75 20 "Browse"
