@@ -5509,12 +5509,15 @@ function zip($a,$b,$c)
     https://dialogshell.com/vds/help/index.php/zero
 #>
 }
+
 directory change "$(path $(Get-Module -ListAvailable vds).path)\examples"
 
 $ErrorActionPreference = "SilentlyContinue"
 
     
 #Adapted from Z.Alex https://gallery.technet.microsoft.com/scriptcenter/Powershell-Form-Builder-3bcaf2c7 MIT License
+
+$global:openform = ""
 
 function mouseDown {
  
@@ -6217,19 +6220,29 @@ function ExportForm {
     $mFooterString2 = ''
     $ms = $false
     $ts = $false
+	$formexport+=$mFormXTextBox2.Text+' = dialog load '+$(chr 34)+$global:openform+$(chr 34)+'
+	'
     $mExportString+= $mFormXTextBox2.Text+' = dialog create "'+$mFormGroupBox.Text+'" 0 0 '+$mFormGroupBox.Width+' '+$mFormGroupBox.Height+'
     ' 
     
     foreach ($row in $FormPropertiesGrid.Rows)
 {
 if ($row.Cells[1].Value -ne $null){
-if ($row.Cells[1].Value -ne "") {
-$mExportString+='dialog property '+$mFormXTextBox2.Text+' '+($row.Cells[0].Value) +' "'+($row.Cells[1].Value)+'"
-' 
- }
- }}
+	if ($row.Cells[1].Value -ne "")
+	{
+	switch ($row.Cells[0].Value)
+	{
+		"height"{}
+		"width"{}
+		"Text"{}
+		default{$mExportString+='dialog property '+$mFormXTextBox2.Text+' '+($row.Cells[0].Value) +' "'+($row.Cells[1].Value)+'"
+' 		}
+	}
+}}}
     
     foreach ($mElement in $mFormObj.Elements){ 
+	$formexport+='$'+$mElement.Name+' = dialog element '+$mFormXTextBox2.Text+' '+$mElement.Name+'
+	'
         switch($mElement.Type){
             "ToolStrip" { $mExportString+='$'+$mElement.Name+' = dialog add '+$mFormXTextBox2.Text+' '+$mElement.Type }
             default {$mExportString+='$'+$mElement.Name+' = dialog add '+$mFormXTextBox2.Text+' '+$mElement.Type}
@@ -6353,7 +6366,9 @@ $mFooterString+= "
 "
     }
     $mExportString+= $mFooterString+$mFooterString2+'dialog show '+$mFormXTextBox2.Text 
-    clipboard set $mExportString
+	$formexport+='
+	'
+    clipboard set "$formexport$mExportString"
 } 
  
 
@@ -6508,12 +6523,14 @@ dialog property $mFormList DropDownStyle DropDownList
 $a = $(sendmsg $mFormList.handle 352 480 0)
 
 $mFormList.add_SelectedValueChanged({
-$openform = $mFormList.selecteditem
-            $mFormObj.Elements = Import-Clixml $openform
-            inifile open $openform
+$global:openform = $mFormList.selecteditem
+            $mFormObj.Elements = Import-Clixml $global:openform
+            inifile open $global:openform
             $mFormXTextBox2.Text = $(iniread Form Object)
             $mFormXTextBox.Text = $(iniread Form Text)
 			$mFormGroupBox = $(iniread Form Text)
+			$mFormGroupBox.Top = $(iniread Form Top)
+			$mFormGroupBox.Left = $(iniread Form Left)
             $mFormGroupBox.Height = $(iniread Form Height)
             $mFormGroupBox.Width = $(iniread Form Width)
             $mFormGroupBox.Text = $mFormXTextBox.text
@@ -6565,6 +6582,7 @@ $FormPropertiesGrid.Rows.Add("Enabled",$(iniread Form Enabled))
 $FormPropertiesGrid.Rows.Add("Font",$(iniread Form Font))
 $FormPropertiesGrid.Rows.Add("ForeColor",$(iniread Form ForeColor))
 $FormPropertiesGrid.Rows.Add("FormBorderStyle",$(iniread Form FormBorderStyle))
+$FormPropertiesGrid.Rows.Add("Height",$(iniread Form Height))
 $FormPropertiesGrid.Rows.Add("HelpButton",$(iniread Form HelpButton))
 $FormPropertiesGrid.Rows.Add("HorizontalScroll",$(iniread Form HorizontalScroll))
 $FormPropertiesGrid.Rows.Add("Icon",$(iniread Form Icon))
@@ -6572,6 +6590,7 @@ $FormPropertiesGrid.Rows.Add("IsMdiChild",$(iniread Form IsMdiChild))
 $FormPropertiesGrid.Rows.Add("IsMdiContainer",$(iniread Form IsMdiContainer))
 $FormPropertiesGrid.Rows.Add("IsRestrictedWindow",$(iniread Form IsRestrictedWindow))
 $FormPropertiesGrid.Rows.Add("KeyPreview",$(iniread Form KeyPreview))
+$FormPropertiesGrid.Rows.Add("Left",$(iniread Form Left))
 $FormPropertiesGrid.Rows.Add("MainMenuStrip",$(iniread Form MainMenuStrip))
 $FormPropertiesGrid.Rows.Add("Margin",$(iniread Form Margin))
 $FormPropertiesGrid.Rows.Add("MaximizeBox",$(iniread Form MaximizeBox))
@@ -6599,6 +6618,8 @@ $FormPropertiesGrid.Rows.Add("StartPosition",$(iniread Form StartPosition))
 $FormPropertiesGrid.Rows.Add("TabIndex",$(iniread Form TabIndex))
 $FormPropertiesGrid.Rows.Add("TabStop",$(iniread Form TabStop))
 $FormPropertiesGrid.Rows.Add("Tag",$(iniread Form Tag))
+$FormPropertiesGrid.Rows.Add("Text",$(iniread Form Text))
+$FormPropertiesGrid.Rows.Add("Top",$(iniread Form Top))
 $FormPropertiesGrid.Rows.Add("TopLevel",$(iniread Form TopLevel))
 $FormPropertiesGrid.Rows.Add("TopLevelControl",$(iniread Form TopLevelControl))
 $FormPropertiesGrid.Rows.Add("TopMost",$(iniread Form TopMost))
@@ -6606,6 +6627,7 @@ $FormPropertiesGrid.Rows.Add("TransparencyKey",$(iniread Form TransparencyKey))
 $FormPropertiesGrid.Rows.Add("UseWaitCursor",$(iniread Form UseWaitCursor))
 $FormPropertiesGrid.Rows.Add("VerticalScroll",$(iniread Form VerticalScroll))
 $FormPropertiesGrid.Rows.Add("Visible",$(iniread Form Visible))
+$FormPropertiesGrid.Rows.Add("Width",$(iniread Form Width))
 $FormPropertiesGrid.Rows.Add("WindowState",$(iniread Form WindowState))
 
             
@@ -6633,6 +6655,7 @@ $mSaveButton = dialog add $mform button (638+35) 335 150 33 'Save Form'
 $mSaveButton.add_Click({
 $saveform = (savedlg "DialogShell Form|*.dsform")
     if ($saveForm) {
+		$global:openform = $saveform
 #   $mFormObj.Elements | ConvertTo-Json -depth 1- | Set-Content -Path $saveform 
          $mFormObj.Elements | Export-Clixml $saveForm 
                          $find = $mFormList.FindString($saveForm)
@@ -6659,17 +6682,19 @@ Add-Content $saveForm "-->"
 })
 $mOpenButton = dialog add $mform button (638+35) 485 150 33 'Open Form'
 $mOpenButton.add_Click({
-    $openform = filedlg("DialogShell Form|*.dsform")
-        if ($openform){
-                 $find = $mFormList.FindString($openform)
+    $global:openform = filedlg("DialogShell Form|*.dsform")
+        if ($global:openform){
+                 $find = $mFormList.FindString($global:openform)
                  if ($find -eq -1){
-                 $mFormList.items.Add($openform)}
+                 $mFormList.items.Add($global:openform)}
                 list clear $mAssignList
                 list assign $mAssignList $mFormList
-            $mFormObj.Elements = Import-Clixml $openform
-            inifile open $openform
+            $mFormObj.Elements = Import-Clixml $global:openform
+            inifile open $global:openform
             $mFormXTextBox2.Text = $(iniread Form Object)
             $mFormXTextBox.Text = $(iniread Form Text)
+			$mFormGroupBox.Top = $(iniread Form Top)
+			$mFormGroupBox.Left = $(iniread Form Left)
             $mFormGroupBox.Height = $(iniread Form Height)
             $mFormGroupBox.Width = $(iniread Form Width)
             $mFormGroupBox.Text = $mFormXTextBox.text
@@ -6721,6 +6746,7 @@ $FormPropertiesGrid.Rows.Add("Enabled",$(iniread Form Enabled))
 $FormPropertiesGrid.Rows.Add("Font",$(iniread Form Font))
 $FormPropertiesGrid.Rows.Add("ForeColor",$(iniread Form ForeColor))
 $FormPropertiesGrid.Rows.Add("FormBorderStyle",$(iniread Form FormBorderStyle))
+$FormPropertiesGrid.Rows.Add("Height",$(iniread Form Height))
 $FormPropertiesGrid.Rows.Add("HelpButton",$(iniread Form HelpButton))
 $FormPropertiesGrid.Rows.Add("HorizontalScroll",$(iniread Form HorizontalScroll))
 $FormPropertiesGrid.Rows.Add("Icon",$(iniread Form Icon))
@@ -6728,6 +6754,7 @@ $FormPropertiesGrid.Rows.Add("IsMdiChild",$(iniread Form IsMdiChild))
 $FormPropertiesGrid.Rows.Add("IsMdiContainer",$(iniread Form IsMdiContainer))
 $FormPropertiesGrid.Rows.Add("IsRestrictedWindow",$(iniread Form IsRestrictedWindow))
 $FormPropertiesGrid.Rows.Add("KeyPreview",$(iniread Form KeyPreview))
+$FormPropertiesGrid.Rows.Add("Left",$(iniread Form Left))
 $FormPropertiesGrid.Rows.Add("MainMenuStrip",$(iniread Form MainMenuStrip))
 $FormPropertiesGrid.Rows.Add("Margin",$(iniread Form Margin))
 $FormPropertiesGrid.Rows.Add("MaximizeBox",$(iniread Form MaximizeBox))
@@ -6755,6 +6782,8 @@ $FormPropertiesGrid.Rows.Add("StartPosition",$(iniread Form StartPosition))
 $FormPropertiesGrid.Rows.Add("TabIndex",$(iniread Form TabIndex))
 $FormPropertiesGrid.Rows.Add("TabStop",$(iniread Form TabStop))
 $FormPropertiesGrid.Rows.Add("Tag",$(iniread Form Tag))
+$FormPropertiesGrid.Rows.Add("Text",$(iniread Form Text))
+$FormPropertiesGrid.Rows.Add("Top",$(iniread Form Top))
 $FormPropertiesGrid.Rows.Add("TopLevel",$(iniread Form TopLevel))
 $FormPropertiesGrid.Rows.Add("TopLevelControl",$(iniread Form TopLevelControl))
 $FormPropertiesGrid.Rows.Add("TopMost",$(iniread Form TopMost))
@@ -6762,8 +6791,8 @@ $FormPropertiesGrid.Rows.Add("TransparencyKey",$(iniread Form TransparencyKey))
 $FormPropertiesGrid.Rows.Add("UseWaitCursor",$(iniread Form UseWaitCursor))
 $FormPropertiesGrid.Rows.Add("VerticalScroll",$(iniread Form VerticalScroll))
 $FormPropertiesGrid.Rows.Add("Visible",$(iniread Form Visible))
+$FormPropertiesGrid.Rows.Add("Width",$(iniread Form Width))
 $FormPropertiesGrid.Rows.Add("WindowState",$(iniread Form WindowState))
-
             
             # $mFormObj.Elements = Import-Csv $openform
         #   $mFormObj.Elements = Get-Content -Path $openform | ConvertFrom-Json
@@ -6842,14 +6871,17 @@ repaintForm})
 if ($FormPropertiesGrid.Rows.count -eq 1)
 {
 
+
+
  foreach ($mProperty in ($mFormGroupBox | get-member)){ 
  if ($mProperty.membertype.toString() -eq "Property"){
        switch ($mProperty.Name){ 
-            'Top'   {} 
+<#           'Top'   {} 
             'Left'  {}  
             'Width' {} 
             'Height' {} 
              'Text'  {}
+#>
 
 'AccessibilityObject' {}
 'CanFocus' {}
@@ -7009,6 +7041,8 @@ $global:mfgbx = 600
             $mFormXTextBox2.Text = $(iniread Form Object)
             $mFormXTextBox.Text = $(iniread Form Text)
 			$mFormGroupBox.Text = $(iniread Form Text)
+			$mFormGroupBox.Top = $(iniread Form Top)
+			$mFormGroupBox.Left = $(iniread Form Left)
             $mFormGroupBox.Height = $(iniread Form Height)
             $mFormGroupBox.Width = $(iniread Form Width)
 			}
