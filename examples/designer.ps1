@@ -315,6 +315,15 @@ public class Window
 
 $vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
 
+[xml]$xml = @"
+            <Window
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+            </Window>
+"@
+$dum = (New-Object System.Xml.XmlNodeReader $xml)
+$win = [Windows.Markup.XamlReader]::Load($dum)
+
 $screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
 
 $global:ctscale = ($screen/$vscreen)
@@ -798,6 +807,160 @@ function decrypt ($a, $b){
 }
 
  function dialog($a,$b,$c,$d,$e,$f,$g,$h) {
+	function AddControl ($mControl){ 
+		$mReturnControl = $null 
+		$ctrol = $mControl.Type | Out-String 
+		$ctrol = $ctrol.trim()
+        switch($ctrol) {
+			"StatusStrip" {
+				$mReturnControl = New-Object System.Windows.Forms.$ctrol
+				$mReturnControl.Name = $mControl.Name
+				Return $mReturnControl
+			}
+			"ToolStrip"{
+				$oolbuttons = New-Object System.Windows.Forms.ToolStrip
+				$oolbuttons.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
+				$oolbuttons.Name = $mControl.Name
+				$oolbuttons.Text = $mControl.Name
+				foreach ($mProperty in $mControl.Properties){
+					foreach ($split in $mProperty.Value.split(",")) {
+						if ($split -ne "-") {
+							$item = new-object System.Windows.Forms.ToolStripButton
+							$isplit = $split.split("|")
+							$item.name = $isplit[0]
+							if ($(substr $isplit[1] 0 2) -eq 'ht') {
+								$item.image = $(streamimage $isplit[1])
+							}
+							else {
+								$item.image = $(fileimage $isplit[1])
+							}
+						$item.text = $isplit[2]
+							$item.Add_Click({&toolstripitemclick $this})
+						}
+						else {
+							$item = new-object System.Windows.Forms.ToolStripSeparator
+							$item.name = $split
+							$item.text = $split                 
+						}                       
+					$oolbuttons.Items.Add($item) | Out-Null                    
+					}	
+				}
+				 #    $b.Controls.Add($toolbuttons)
+				return $oolbuttons
+			}
+        
+			default{
+				if ($ctrol -eq "MenuStrip"){
+					$global:designribbonctrl = New-Object System.Windows.Forms.$ctrol
+					$designribbonctrl.imagescalingsize = new-object System.Drawing.Size([int]($ctscale * 16),[int]($ctscale * 16))
+					$enutitle = new-object System.Windows.Forms.ToolStripMenuItem
+					$enutitle.Name = $mControl.Name
+					$enutitle.Text = $mControl.Name
+					$global:designribbonctrl.Items.add($enutitle) | Out-Null
+					foreach ($mProperty in $mControl.Properties){
+						foreach ($split in $mProperty.Value.split(",")) {
+							if ($split -ne "-") {
+								$innersplit = $split.split("|")
+								$split = $innersplit[0]
+								$item = new-object System.Windows.Forms.ToolStripMenuItem
+								if ($innersplit[2]) {
+									if ($(substr $innersplit[2] 0 2) -eq 'ht') {
+										$item.image = $(streamimage $innersplit[2])
+									}
+									else {
+									$item.image = $(fileimage $innersplit[2])
+									}
+								}
+								if ($innersplit[1]) {
+									$item.ShortCutKeys = $innersplit[1]
+									$item.ShowShortCutKeys = $true
+								}
+								$item.name = $split
+								$item.text = $split
+								$item.Add_Click({
+									&menuitemclick $this
+								})
+							} 
+							else {
+								$item = new-object System.Windows.Forms.ToolStripSeparator
+								$item.name = $split
+								$item.text = $split                 
+							}                       
+							$enutitle.DropDownItems.Add($item) | Out-Null
+						}
+					}
+					return $global:designribbonctrl
+				}
+				else{
+					$mReturnControl = New-Object System.Windows.Forms.$ctrol
+					$mReturnControl.Name = $mControl.Name
+					$mSizeX=$null
+					$mSizeY=$null
+					foreach ($mProperty in $mControl.Properties){
+						switch ($mProperty.Name){ 
+				#           'Top'   {$mReturnControl.Top=$mProperty.Value} 
+				#           'Left'  {$mReturnControl.Left=$mProperty.Value}  
+							'Width' {$mSizeX=$mProperty.Value} 
+							'Height' {$mSizeY=$mProperty.Value} 
+				#           'Text'  {$mReturnControl.Text=$mProperty.Value}
+							'AccessibilityObject' {}
+							'CanFocus' {}
+							'CanSelect' {}
+							'CompanyName' {}
+							'Container' {}
+							'ContainsFocus' {}
+							'Controls' {}
+							'Created' {}
+							'DataBindings' {}
+							'DeviceDpi' {}
+							'DisplayRectangle' {}
+							'Disposing' {}
+							'Focused' {}
+							'Handle' {}
+							'HasChildren' {}
+							'InvokeRequired' {}
+							'IsDisposed' {}
+							'IsHandleCreated' {}
+							'IsMirrored' {}
+							'LayoutEngine' {}
+							'PreferredHeight' {}
+							'PreferredSize' {}
+							'ProductName' {}
+							'ProductVersion' {}
+							'RecreatingHandle' {}
+							'Right' {}
+							'AccessibleName' {}
+							'AccessibleDefaultActionDescription' {}
+							'AccessibleDescription' {}
+							'AccessibleRole' {}
+							'ImeMode' {}
+							'IsAccessible' {}
+							'Location' {}
+							'Name' {}
+							'Parent' {}
+							'Region' {}
+							'Site' {}
+							'WindowTarget' {}
+							default{ 
+								$prop = $mProperty.Name
+								$val = $mProperty.Value
+								if ($mProperty.value -ne $null){
+									$mReturnControl.$prop = $val
+								}
+							}
+						}
+					} 
+					$mReturnControl.Size = New-Object System.Drawing.Size($mSizeX,$mSizeY) 
+					$mReturnControl.Top = $mReturnControl.Top * $ctscale
+					$mReturnControl.Left = $mReturnControl.Left * $ctscale
+					$mReturnControl.Height = $mReturnControl.Height * $ctscale
+					$mReturnControl.Width = $mReturnControl.Width * $ctscale
+				    ######THIS IS A GOOD SPOT TO BOUNCE BACK PROPERTIES INTO LIST##### 
+					Return $mReturnControl
+				}
+			}
+		}
+	}
      switch ($a) {
          add {
              switch ($c) {
@@ -950,11 +1113,16 @@ function decrypt ($a, $b){
          cursor {
              $b.Cursor = $c
          } #https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursors.appstarting?view=netframework-4.7.2
-         enable {
-             $b.enabled = $true
-         }
+
          disable {
              $b.enabled = $false
+         }
+		 element {
+			$q = $b.controls | where{$_.name -eq $c}
+			return $q
+		 }
+		 enable {
+             $b.enabled = $true
          }
          focus {
              $b.focus()
@@ -962,6 +1130,291 @@ function decrypt ($a, $b){
          hide {
              $b.visible = $false
          }
+		 load {
+			if (file $b){ 
+			$form = dialog create # $c $d $e $f $g
+			$mFormObj = Import-Clixml $b
+			Foreach ($mElement in $mFormObj){ 
+				$form.controls.add((AddControl $mElement)) 
+			}
+			
+			inifile open $b
+
+if ($(iniread Form AcceptButton) -ne "") {
+$form.AcceptButton	 				= $(iniread Form AcceptButton)
+}
+if ($(iniread Form ActiveControl) -ne "") {
+$form.ActiveControl	 				= $(iniread Form ActiveControl)
+}
+if ($(iniread Form ActiveMdiChild) -ne "") {
+$form.ActiveMdiChild				= $(iniread Form ActiveMdiChild)
+}
+if ($(iniread Form AllowDrop) -ne "") {
+$form.AllowDrop	 					= $(iniread Form AllowDrop)
+}
+if ($(iniread Form AllowTransparency) -ne "") {
+$form.AllowTransparency				= $(iniread Form AllowTransparency)
+}
+if ($(iniread Form Anchor) -ne "") {
+$form.Anchor	 					= $(iniread Form Anchor)
+}
+if ($(iniread Form AutoScale) -ne "") {
+$form.AutoScale	 					= $(iniread Form AutoScale)
+}
+if ($(iniread Form AutoScaleBaseSize) -ne "") {
+$form.AutoScaleBaseSize				= $(iniread Form AutoScaleBaseSize)
+}
+if ($(iniread Form AutoScaleDimensions) -ne "") {
+$form.AutoScaleDimensions			= $(iniread Form AutoScaleDimensions)
+}
+if ($(iniread Form AutoScaleMode) -ne "") {
+$form.AutoScaleMode					= $(iniread Form AutoScaleMode)
+}
+if ($(iniread Form AutoScroll) -ne "") {
+$form.AutoScroll					= $(iniread Form AutoScroll)
+}
+if ($(iniread Form AutoScrollMargin) -ne "") {
+$form.AutoScrollMargin				= $(iniread Form AutoScrollMargin)
+}
+if ($(iniread Form AutoScrollMinSize) -ne "") {
+$form.AutoScrollMinSize				= $(iniread Form AutoScrollMinSize)
+}
+if ($(iniread Form AutoScrollOffset) -ne "") {
+$form.AutoScrollOffset				= $(iniread Form AutoScrollOffset)
+}
+if ($(iniread Form AutoScrollPosition) -ne "") {
+$form.AutoScrollPosition			= $(iniread Form AutoScrollPosition)
+}
+if ($(iniread Form AutoSize) -ne "") {
+$form.AutoSize						= $(iniread Form AutoSize)
+}
+if ($(iniread Form AutoSizeMode) -ne "") {
+$form.AutoSizeMode					= $(iniread Form AutoSizeMode)
+}
+if ($(iniread Form AutoValidate) -ne "") {
+$form.AutoValidate					= $(iniread Form AutoValidate)
+}
+if ($(iniread Form BackColor) -ne "") {
+$form.BackColor						= $(iniread Form BackColor)
+}
+if ($(iniread Form BackgroundImage) -ne "") {
+$form.BackgroundImage				= $(iniread Form BackgroundImage)
+}
+if ($(iniread Form BackgroundImageLayout) -ne "") {
+$form.BackgroundImageLayout			= $(iniread Form BackgroundImageLayout)
+}
+if ($(iniread Form BindingContext) -ne "") {
+$form.BindingContext				= $(iniread Form BindingContext)
+}
+if ($(iniread Form Bottom) -ne "") {
+$form.Bottom						= $(iniread Form Bottom)
+}
+if ($(iniread Form Bounds) -ne "") {
+$form.Bounds						= $(iniread Form Bounds)
+}
+if ($(iniread Form CancelButton) -ne "") {
+$form.CancelButton					= $(iniread Form CancelButton)
+}
+if ($(iniread Form Capture) -ne "") {
+$form.Capture						= $(iniread Form Capture)
+}
+if ($(iniread Form CausesValidation) -ne "") {
+$form.CausesValidation				= $(iniread Form CausesValidation)
+}
+if ($(iniread Form ClientRectangle) -ne "") {
+$form.ClientRectangle				= $(iniread Form ClientRectangle)
+}
+if ($(iniread Form ClientSize) -ne "") {
+$form.ClientSize					= $(iniread Form ClientSize)
+}
+if ($(iniread Form ContextMenu) -ne "") {
+$form.ContextMenu					= $(iniread Form ContextMenu)
+}
+if ($(iniread Form ContextMenuStrip) -ne "") {
+$form.ContextMenuStrip				= $(iniread Form ContextMenuStrip)
+}
+if ($(iniread Form ControlBox) -ne "") {
+$form.ControlBox					= $(iniread Form ControlBox)
+}
+if ($(iniread Form CurrentAutoScaleDimensions) -ne "") {
+$form.CurrentAutoScaleDimensions	= $(iniread Form CurrentAutoScaleDimensions)
+}
+if ($(iniread Form Cursor) -ne "") {
+$form.Cursor						= $(iniread Form Cursor)
+}
+if ($(iniread Form DesktopBounds) -ne "") {
+$form.DesktopBounds					= $(iniread Form DesktopBounds)
+}
+if ($(iniread Form DesktopLocation) -ne "") {
+$form.DesktopLocation				= $(iniread Form DesktopLocation)
+}
+if ($(iniread Form DialogResult) -ne "") {
+$form.DialogResult					= $(iniread Form DialogResult)
+}
+if ($(iniread Form Dock) -ne "") {
+$form.Dock							= $(iniread Form Dock)
+}
+if ($(iniread Form DockPadding) -ne "") {
+$form.DockPadding					= $(iniread Form DockPadding)
+}
+if ($(iniread Form Enabled) -ne "") {
+$form.Enabled						= $(iniread Form Enabled)
+}
+if ($(iniread Form Font) -ne "") {
+$form.Font							= $(iniread Form Font)
+}
+if ($(iniread Form ForeColor) -ne "") {
+$form.ForeColor						= $(iniread Form ForeColor)
+}
+if ($(iniread Form FormBorderStyle) -ne "") {
+$form.FormBorderStyle				= $(iniread Form FormBorderStyle)
+}
+if ($(iniread Form Height) -ne "") {
+$form.Height						= (($(iniread Form Height) / 1) * $ctscale)
+}
+if ($(iniread Form HelpButton) -ne "") {
+$form.HelpButton					= $(iniread Form HelpButton)
+}
+if ($(iniread Form HorizontalScroll) -ne "") {
+$form.HorizontalScroll				= $(iniread Form HorizontalScroll)
+}
+if ($(iniread Form Icon) -ne "") {
+$form.Icon							= $(iniread Form Icon)
+}
+if ($(iniread Form IsMdiChild) -ne "") {
+$form.IsMdiChild					= $(iniread Form IsMdiChild)
+}
+if ($(iniread Form IsMdiContainer) -ne "") {
+$form.IsMdiContainer				= $(iniread Form IsMdiContainer)
+}
+if ($(iniread Form IsRestrictedWindow) -ne "") {
+$form.IsRestrictedWindow			= $(iniread Form IsRestrictedWindow)
+}
+if ($(iniread Form KeyPreview) -ne "") {
+$form.KeyPreview					= $(iniread Form KeyPreview)
+}
+if ($(iniread Form Left) -ne "") {
+$form.Left							= (($(iniread Form Left) / 1) * $ctscale)
+}
+if ($(iniread Form MainMenuStrip) -ne "") {
+$form.MainMenuStrip					= $(iniread Form MainMenuStrip)
+}
+if ($(iniread Form Margin) -ne "") {
+$form.Margin						= $(iniread Form Margin)
+}
+if ($(iniread Form MaximizeBox) -ne "") {
+$form.MaximizeBox					= $(iniread Form MaximizeBox)
+}
+if ($(iniread Form MaximumSize) -ne "") {
+$form.MaximumSize					= $(iniread Form MaximumSize)
+}
+if ($(iniread Form MdiChildren) -ne "") {
+$form.MdiChildren					= $(iniread Form MdiChildren)
+}
+if ($(iniread Form MdiParent) -ne "") {
+$form.MdiParent						= $(iniread Form MdiParent)
+}
+if ($(iniread Form Menu) -ne "") {
+$form.Menu							= $(iniread Form Menu)
+}
+if ($(iniread Form MergedMenu) -ne "") {
+$form.MergedMenu					= $(iniread Form MergedMenu)
+}
+if ($(iniread Form MinimizeBox) -ne "") {
+$form.MinimizeBox					= $(iniread Form MinimizeBox)
+}
+if ($(iniread Form MinimumSize) -ne "") {
+$form.MinimumSize					= $(iniread Form MinimumSize)
+}
+if ($(iniread Form Modal) -ne "") {
+$form.Modal							= $(iniread Form Modal)
+}
+if ($(iniread Form Opacity) -ne "") {
+$form.Opacity						= $(iniread Form Opacity)
+}
+if ($(iniread Form OwnedForms) -ne "") {
+$form.OwnedForms					= $(iniread Form OwnedForms)
+}
+if ($(iniread Form Owner) -ne "") {
+$form.Owner							= $(iniread Form Owner)
+}
+if ($(iniread Form Padding) -ne "") {
+$form.Padding						= $(iniread Form Padding)
+}
+if ($(iniread Form ParentForm) -ne "") {
+$form.ParentForm					= $(iniread Form ParentForm)
+}
+if ($(iniread Form RestoreBounds) -ne "") {
+$form.RestoreBounds					= $(iniread Form RestoreBounds)
+}
+if ($(iniread Form RightToLeft) -ne "") {
+$form.RightToLeft					= $(iniread Form RightToLeft)
+}
+if ($(iniread Form RightToLeftLayout) -ne "") {
+$form.RightToLeftLayout				= $(iniread Form RightToLeftLayout)
+}
+if ($(iniread Form ShowIcon) -ne "") {
+$form.ShowIcon						= $(iniread Form ShowIcon)
+}
+if ($(iniread Form ShowInTaskbar) -ne "") {
+$form.ShowInTaskbar					= $(iniread Form ShowInTaskbar)
+}
+if ($(iniread Form Size) -ne "") {
+$form.Size							= $(iniread Form Size)
+}
+if ($(iniread Form SizeGripStyle) -ne "") {
+$form.SizeGripStyle					= $(iniread Form SizeGripStyle)
+}
+if ($(iniread Form StartPosition) -ne "") {
+$form.StartPosition					= $(iniread Form StartPosition)
+}
+if ($(iniread Form TabIndex) -ne "") {
+$form.TabIndex						= $(iniread Form TabIndex)
+}
+if ($(iniread Form TabStop) -ne "") {
+$form.TabStop						= $(iniread Form TabStop)
+}
+if ($(iniread Form Tag) -ne "") {
+$form.Tag							= $(iniread Form Tag)
+}
+if ($(iniread Form Text) -ne "") {
+$form.Text							= $(iniread Form Text)
+}
+if ($(iniread Form Top) -ne "") {
+$form.Top							= (($(iniread Form Top) / 1) * $ctscale)
+}
+if ($(iniread Form TopLevel) -ne "") {
+$form.TopLevel						= $(iniread Form TopLevel)
+}
+if ($(iniread Form TopLevelControl) -ne "") {
+$form.TopLevelControl				= $(iniread Form TopLevelControl)
+}
+if ($(iniread Form TopMost) -ne "") {
+$form.TopMost						= $(iniread Form TopMost)
+}
+if ($(iniread Form TransparencyKey) -ne "") {
+$form.TransparencyKey				= $(iniread Form TransparencyKey)
+}
+if ($(iniread Form UseWaitCursor) -ne "") {
+$form.UseWaitCursor					= $(iniread Form UseWaitCursor)
+}
+if ($(iniread Form VerticalScroll) -ne "") {
+$form.VerticalScroll				= $(iniread Form VerticalScroll)
+}
+if ($(iniread Form Visible) -ne "") {
+$form.Visible						= $(iniread Form Visible)
+}
+if ($(iniread Form Width) -ne "") {
+$form.Width							= (($(iniread Form Width) / 1) * $ctscale)
+}
+if ($(iniread Form WindowState) -ne "") {
+$form.WindowState					= $(iniread Form WindowState)
+}
+			
+			
+		return $form
+			}
+		}
          name {
              $b.Name = $c
          }
@@ -1180,7 +1633,7 @@ function dialogshell($a)
 					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\application.ico"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide-noscale.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\designer.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					directory create "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
 					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("pwsh.exe") ("$(path $(Get-Module -ListAvailable vds).path)\examples") ("$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)")
                     link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("pwsh.exe") ("$(path $(Get-Module -ListAvailable vds).path)\compile") ("$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34)")
@@ -1219,7 +1672,7 @@ function dialogshell($a)
 					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\application.ico"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "powershell.exe  -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide-noscale.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "powershell.exe  -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\designer.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					directory create "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
 					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("powershell.exe") ("$(path $(Get-Module -ListAvailable vds).path)\examples") ("$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)")
                     link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("powershell.exe") ("$(path $(Get-Module -ListAvailable vds).path)\compile") ("$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34)")					
@@ -5510,6 +5963,7 @@ function zip($a,$b,$c)
 #>
 }
 
+
 directory change "$(path $(Get-Module -ListAvailable vds).path)\examples"
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -6871,8 +7325,6 @@ repaintForm})
 if ($FormPropertiesGrid.Rows.count -eq 1)
 {
 
-
-
  foreach ($mProperty in ($mFormGroupBox | get-member)){ 
  if ($mProperty.membertype.toString() -eq "Property"){
        switch ($mProperty.Name){ 
@@ -6882,7 +7334,6 @@ if ($FormPropertiesGrid.Rows.count -eq 1)
             'Height' {} 
              'Text'  {}
 #>
-
 'AccessibilityObject' {}
 'CanFocus' {}
 'CanSelect' {}
