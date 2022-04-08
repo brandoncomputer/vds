@@ -97,6 +97,7 @@ This project is licensed under the MIT License - see the [license.md](license.md
 ## Acknowledgments
 ```
 Julian Moss (jules)
+Alex Z
 FreezingFire
 Skit3000
 Garrett
