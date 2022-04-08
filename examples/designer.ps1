@@ -315,15 +315,6 @@ public class Window
 
 $vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
 
-[xml]$xml = @"
-            <Window
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-            </Window>
-"@
-$dum = (New-Object System.Xml.XmlNodeReader $xml)
-$win = [Windows.Markup.XamlReader]::Load($dum)
-
 $screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
 
 $global:ctscale = ($screen/$vscreen)
@@ -6982,9 +6973,8 @@ $global:openform = $mFormList.selecteditem
             inifile open $global:openform
             $mFormXTextBox2.Text = $(iniread Form Object)
             $mFormXTextBox.Text = $(iniread Form Text)
-			$mFormGroupBox = $(iniread Form Text)
-			$mFormGroupBox.Top = $(iniread Form Top)
-			$mFormGroupBox.Left = $(iniread Form Left)
+		#	$mFormGroupBox.Top = $(iniread Form Top)
+		#	$mFormGroupBox.Left = $(iniread Form Left)
             $mFormGroupBox.Height = $(iniread Form Height)
             $mFormGroupBox.Width = $(iniread Form Width)
             $mFormGroupBox.Text = $mFormXTextBox.text
