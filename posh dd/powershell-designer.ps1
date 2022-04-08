@@ -6714,10 +6714,12 @@ if ($row.Cells[1].Value -ne $null){
 
         $mExportString += '
         '+$mFormXTextBox2.Text+'.Controls.Add($'+$mElement.Name+')
+		$'+$mElement.Name+'.add_Click({[System.Windows.Forms.MessageBox]::Show("'+$mElement.Name+' click!","Example Event","OK",64) | Out-Null})
         '
     }
 
-    $mExportString+= '[System.Windows.Forms.Application]::Run('+$mFormXTextBox2.Text+') | Out-Null'
+    $mExportString+= '[System.Windows.Forms.Application]::Run('+$mFormXTextBox2.Text+') | Out-Null
+	#For consecutive forms use $Form.Show() or modal $Form.ShowDialog(). Only use Run once.'
     clipboard set "$mExportString"
 } 
  
@@ -6727,10 +6729,10 @@ if ($row.Cells[1].Value -ne $null){
 if ($args[0])
 
 
-{$mform.icon = (curdir)+"\..\res\icon.ico"
+{$mform.icon = (curdir)+"\res\icon.ico"
 }
 else{
-    $dir = string (path $(Get-Module -ListAvailable vds).path)
+    $dir = string (path $(Get-Module -ListAvailable powershell-designer).path)
     $mform.icon = "$dir\res\icon.ico"
 }
 $mForm.AutoSize = $true 
@@ -7195,7 +7197,7 @@ window close $(winexists "Dialog Elements")
 
  function DesignWindow{
 $Global:mFormGroupBox = dialog create $mFormXTextBox.text 0 0 $global:mfgbx $global:mfgby
-    $dir = string "$(path $(Get-Module -ListAvailable vds).path)"
+    $dir = string "$(path $(Get-Module -ListAvailable powershell-designer).path)"
     $mFormGroupBox.icon = "$dir\res\application.ico"
 
 $mFormGroupBox.AllowDrop = $true
@@ -7329,7 +7331,7 @@ function elementswindow{
                     
 					directory create "$(env temp)\elements"
 					directory create "$(env temp)\res"
-					file copy "..\res\*" "$(env temp)\res"
+					file copy ".\res\*" "$(env temp)\res"
 					
                     $buttonout          | Out-File "$(env temp)\elements\Button.url"
                     $checkboxout        | Out-File "$(env temp)\elements\CheckBox.url"    
