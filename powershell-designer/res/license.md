@@ -4,4 +4,4 @@ Thanks to FAMFAMFAM.com
 
 famfamfam.com is the website of Mark James, a web developer from Birmingham, UK. who open sourced the original icons here.
 
-Several of the icons have been slightly modified for DialogShell.
+Several of the icons have been slightly modified for Powershell Designer.
