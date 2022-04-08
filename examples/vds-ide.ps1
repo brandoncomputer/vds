@@ -589,7 +589,7 @@ function global:menuitemclick ($menu) {
 				if ($(ask "Screen Scale must be 100%. Would you like to launch another session in a compatible mode?") -eq "Yes"){
 					switch ((get-host).version.major){
 						"7" {
-							if ($(ext $FastTab.SelectedTab.Text) -eq "ds1") {						
+							if ($(ext $FastTab.SelectedTab.Text)) {						
 								start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).$(ext $FastTab.SelectedTab.Text)$(chr 34)"
 							}
 							else {
@@ -598,7 +598,7 @@ function global:menuitemclick ($menu) {
 						}
 				
 						default {
-							if ($(ext $FastTab.SelectedTab.Text) -eq "ds1") {						
+							if ($(ext $FastTab.SelectedTab.Text)) {							
 								start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).$(ext $FastTab.SelectedTab.Text)$(chr 34)"
 							}
 							else {
@@ -1938,9 +1938,8 @@ $global:openform = $mFormList.selecteditem
             inifile open $global:openform
             $mFormXTextBox2.Text = $(iniread Form Object)
             $mFormXTextBox.Text = $(iniread Form Text)
-			$mFormGroupBox = $(iniread Form Text)
-			$mFormGroupBox.Top = $(iniread Form Top)
-			$mFormGroupBox.Left = $(iniread Form Left)
+		#	$mFormGroupBox.Top = $(iniread Form Top)
+		#	$mFormGroupBox.Left = $(iniread Form Left)
             $mFormGroupBox.Height = $(iniread Form Height)
             $mFormGroupBox.Width = $(iniread Form Width)
             $mFormGroupBox.Text = $mFormXTextBox.text

@@ -807,7 +807,7 @@ function decrypt ($a, $b){
 }
 
  function dialog($a,$b,$c,$d,$e,$f,$g,$h) {
-	function AddControl ($mControl){ 
+	function AddControl2 ($mControl){ 
 		$mReturnControl = $null 
 		$ctrol = $mControl.Type | Out-String 
 		$ctrol = $ctrol.trim()
@@ -1135,7 +1135,7 @@ function decrypt ($a, $b){
 			$form = dialog create # $c $d $e $f $g
 			$mFormObj = Import-Clixml $b
 			Foreach ($mElement in $mFormObj){ 
-				$form.controls.add((AddControl $mElement)) 
+				$form.controls.add((AddControl2 $mElement)) 
 			}
 			
 			inifile open $b
@@ -2636,7 +2636,10 @@ return $(select-object -inputobject $a -expandproperty $b)
 
 function ext($a) {
     $split = $a.Split('.')
+	if ($split.count -gt 1)
+	{
     return $split[$split.count -1]
+	}
 <#
     .SYNOPSIS
     returns the three character extension of a file name.
@@ -4918,7 +4921,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.3.1'
+        return '0.3.3.2'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String
