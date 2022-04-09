@@ -314,7 +314,7 @@ public class Window
 "@
 
 $vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-if (-not (get-host).version.major -eq 7) {
+if ((get-host).version.major -eq 5) {
 [xml]$xml = @"
             <Window
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
