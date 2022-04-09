@@ -6660,15 +6660,27 @@ Function EditFormSize ($x,$y){
  
 function ExportForm {
     $mFormObj
-    $mExportString = "
-    "
-    $mExportString+= '
-    Add-Type -AssemblyName System.Windows.Forms
-    Add-Type -AssemblyName System.Drawing
-    '+$mFormXTextBox2.Text+' = New-Object System.Windows.Forms.Form
-    '+$mFormXTextBox2.Text+'.Text="'+$mFormGroupBox.Text+'"
-    '+$mFormXTextBox2.Text+'.Width = '+$mFormGroupBox.Width+'
-	'+$mFormXTextBox2.Text+'.Height = '+$mFormGroupBox.Height+'
+    $mExportString = ""
+    $mExportString+= 'Add-Type -AssemblyName System.Windows.Forms, System.Drawing, presentationframework
+$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+[xml]$xml = @"
+            <Window
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+            </Window>
+"@
+$dum = (New-Object System.Xml.XmlNodeReader $xml)
+$win = [Windows.Markup.XamlReader]::Load($dum)
+
+$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+$global:ctscale = ($screen/$vscreen)
+    
+'+$mFormXTextBox2.Text+' = New-Object System.Windows.Forms.Form
+	'+$mFormXTextBox2.Text+'.Text="'+$mFormGroupBox.Text+'"
+	'+$mFormXTextBox2.Text+'.Width = '+$mFormGroupBox.Width+' * $ctscale
+	'+$mFormXTextBox2.Text+'.Height = '+$mFormGroupBox.Height+' * $ctscale
     '
 	    foreach ($row in $FormPropertiesGrid.Rows)
 {
@@ -6689,9 +6701,9 @@ if ($row.Cells[1].Value -ne $null){
     {
         $mExportString += '
 
-        $' + $mElement.Name + ' = New-Object System.Windows.Forms.'+$mElement.Type+''
-        $mPrSizeX=''
-        $mPrSizeY=''
+	$' + $mElement.Name + ' = New-Object System.Windows.Forms.'+$mElement.Type+''
+$mPrSizeX=''
+$mPrSizeY=''
 
         foreach ($mProperty in $mElement.Properties)
         {
@@ -6706,16 +6718,37 @@ if ($row.Cells[1].Value -ne $null){
 				}
 				else
 				{
-					$mExportString += '
-					$'+$mElement.Name+'.'+$mProperty.Name +'="'+$mProperty.Value+'"'
+					switch($mProperty.Name)
+					{
+						Height{
+						$mExportString += '
+		$'+$mElement.Name+'.'+$mProperty.Name +'='+$mProperty.Value+' * $ctscale'
+						}
+						Width{
+						$mExportString += '
+		$'+$mElement.Name+'.'+$mProperty.Name +'='+$mProperty.Value+' * $ctscale'
+						}
+						Top{
+						$mExportString += '
+		$'+$mElement.Name+'.'+$mProperty.Name +'='+$mProperty.Value+' * $ctscale'
+						}
+						Left{
+						$mExportString += '
+		$'+$mElement.Name+'.'+$mProperty.Name +'='+$mProperty.Value+' * $ctscale'
+						}
+						default{
+							$mExportString += '
+		$'+$mElement.Name+'.'+$mProperty.Name +'="'+$mProperty.Value+'"'
+						}
+					}
 				}
 			}
 		}
 
         $mExportString += '
         '+$mFormXTextBox2.Text+'.Controls.Add($'+$mElement.Name+')
-		$'+$mElement.Name+'.add_Click({[System.Windows.Forms.MessageBox]::Show("'+$mElement.Name+' click!","Example Event","OK",64) | Out-Null})
-        '
+		#$'+$mElement.Name+'.add_Click({[System.Windows.Forms.MessageBox]::Show("'+$mElement.Name+' click!","Example Event","OK",64) | Out-Null})
+'
     }
 
     $mExportString+= '[System.Windows.Forms.Application]::Run('+$mFormXTextBox2.Text+') | Out-Null
