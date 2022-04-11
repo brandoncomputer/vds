@@ -313,21 +313,7 @@ public class Window
 }
 "@
 
-$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-if ((get-host).version.major -eq 5) {
-[xml]$xml = @"
-            <Window
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-            </Window>
-"@
-$dum = (New-Object System.Xml.XmlNodeReader $xml)
-$win = [Windows.Markup.XamlReader]::Load($dum)
-}
-
-$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-
-$global:ctscale = ($screen/$vscreen)
+$global:ctscale = 1
 
 $global:xmen = $false
 $global:excelinit = $false
@@ -4922,7 +4908,7 @@ function sysinfo($a) {
             return $major.Trim()+'.'+$minor.Trim()+'.'+$build.Trim()+'.'+$revision.Trim() 
         } 
         dsver {
-        return '0.3.3.4'
+        return '0.3.3.5'
         }
         winboot {
             $return = Get-CimInstance -ClassName win32_operatingsystem | fl lastbootuptime | Out-String

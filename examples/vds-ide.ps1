@@ -1,3 +1,21 @@
+info $null 2>$null
+$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+if ((get-host).version.major -eq 5) {
+[xml]$xml = @"
+            <Window
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+            </Window>
+"@
+$dum = (New-Object System.Xml.XmlNodeReader $xml)
+$win = [Windows.Markup.XamlReader]::Load($dum)
+}
+
+$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+$global:ctscale = ($screen/$vscreen)
+
+
 directory change "$(path $(Get-Module -ListAvailable vds).path)\examples"
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -1620,6 +1638,30 @@ Function EditFormSize ($x,$y){
 function ExportForm {
     $mFormObj  
     $mExportString = ''
+		$scaleString = ''
+	
+	if  ($scaleCheck.Checked -eq $True)
+	{
+	
+        $scaleString+= 'info $null 2>$null
+		$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+if ((get-host).version.major -eq 5) {
+[xml]$xml = @"
+            <Window
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+            </Window>
+"@
+$dum = (New-Object System.Xml.XmlNodeReader $xml)
+$win = [Windows.Markup.XamlReader]::Load($dum)
+}
+
+$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+
+$global:ctscale = ($screen/$vscreen)
+ 
+'
+	}
     $mFooterString = ''
     $mFooterString2 = ''
     $ms = $false
@@ -1772,7 +1814,7 @@ $mFooterString+= "
     $mExportString+= $mFooterString+$mFooterString2+'dialog show '+$mFormXTextBox2.Text 
 	$formexport+='
 	'
-    $FastTab.SelectedTab.Controls[0].InsertText("$formexport$mExportString")
+    $FastTab.SelectedTab.Controls[0].InsertText("$scaleString$formexport$mExportString")
     $mFormGroupBox.Dispose()
     $eleOK = "false"
     $elements.Dispose()
@@ -1860,7 +1902,9 @@ $mAddButton.Add_Click({AddElement})
 
 #$mForm.Controls.Add($mAddButton) 
  
-$mFormLabel = dialog add $mform label 5 5 40 " " 'Title:'
+$scaleCheck = dialog add $mform CheckBox 35 445 200 20 "Fix Scaling for HDR"
+ 
+$mFormLabel = dialog add $mform label 5 5 30 25 'Title:'
 $mFormLabel.TextAlign='MiddleRight' 
  
 $mFormXTextBox = dialog add $mform textbox 5 50 90 100 'Form'
