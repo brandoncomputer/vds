@@ -83,6 +83,13 @@ SOFTWARE.
     2.0.1.0 - 12/26/2020
         Corrected issue after resizing of Form in design after resize to refresh parent Form
         Fixed issue with Size property on Forms and Textboxes to save correctly
+	2.0.2.0 - 4/13/2022
+		Removed FileDialog because it was unstable.
+		Removed Global Context Menus because they were unstable.
+		Fixed control attached Context Menus.
+		Fixed generation of and behavior of common dialogs, which did not work previously.
+		Assigned controls to variables rather than a script reference array.
+		If the VDS Module is installed, it is integrated into the script file output.
 		
 BASIC MODIFICATIONS License
 #This software has been modified from the original as tagged with #brandoncomputer
