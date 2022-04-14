@@ -88,6 +88,7 @@ SOFTWARE.
 		Removed Global Context Menus because they were unstable.
 		Fixed control attached Context Menus.
 		Fixed generation of and behavior of common dialogs, which did not work previously.
+		Fixed Save and Save As functions to not be locked to preset directory
 		Assigned controls to variables rather than a script reference array and removed abstract reference table.
 		If the VDS Module is installed, it is integrated into the script file output.
 		Added DataGrid, HScrollBar, StatusStrip, TrackBar, VScrollBar
