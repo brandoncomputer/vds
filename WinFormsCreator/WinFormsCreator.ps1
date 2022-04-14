@@ -88,7 +88,7 @@ SOFTWARE.
 		Removed Global Context Menus because they were unstable.
 		Fixed control attached Context Menus.
 		Fixed generation of and behavior of common dialogs, which did not work previously.
-		Assigned controls to variables rather than a script reference array.
+		Assigned controls to variables rather than a script reference array and removed abstract reference table.
 		If the VDS Module is installed, it is integrated into the script file output.
 		
 BASIC MODIFICATIONS License
