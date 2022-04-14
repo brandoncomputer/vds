@@ -90,6 +90,8 @@ SOFTWARE.
 		Fixed generation of and behavior of common dialogs, which did not work previously.
 		Assigned controls to variables rather than a script reference array and removed abstract reference table.
 		If the VDS Module is installed, it is integrated into the script file output.
+	2.0.2.1
+		Fixed issue with Context Menus.
 		
 BASIC MODIFICATIONS License
 #This software has been modified from the original as tagged with #brandoncomputer
@@ -892,8 +894,10 @@ $sbGUI = {
                     })
                 })
 				
-				$node = $xml.selectSingleNode('//Data/Form')
-				$node.RemoveAttribute('ContextMenuStrip')
+				$nodes = $xml.SelectNodes('//*')
+				foreach ($node in $nodes) {
+					$nodes.RemoveAttribute('ContextMenuStrip')
+				}
 				
                 if ( $ReturnXML ) {return $xml}
                 else {
@@ -1491,8 +1495,10 @@ $sbGUI = {
 
                                     $_.Events -Split ' ' | ForEach-Object {
 										#brandoncomputer
-								$node = $xml.selectSingleNode('//Form')
-								$node.RemoveAttribute('ContextMenuStrip')
+				$nodes = $xml.SelectNodes('//*')
+				foreach ($node in $nodes) {
+					$nodes.RemoveAttribute('ContextMenuStrip')
+				}
 									$scriptText.Add("	`$$name.Add_$($_)({
 		
 	})")}
@@ -2202,6 +2208,7 @@ $sbGUI = {
             [pscustomobject]@{Name='Timer';Prefix='tmr';Type='Parentless';ChildTypes=@()},
             [pscustomobject]@{Name='TreeView';Prefix='tvw';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='WebBrowser';Prefix='wbr';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='StatusStrip';Prefix='sta';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='ToolStripMenuItem';Prefix='tmi';Type='MenuStrip-Root';ChildTypes=@('MenuStrip-Root','MenuStrip-Child')},
             [pscustomobject]@{Name='ToolStripComboBox';Prefix='tcb';Type='MenuStrip-Root';ChildTypes=@()},
             [pscustomobject]@{Name='ToolStripTextBox';Prefix='ttb';Type='MenuStrip-Root';ChildTypes=@()},
