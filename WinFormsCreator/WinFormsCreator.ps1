@@ -26,10 +26,10 @@ SOFTWARE.
     .NOTES
     ===========================================================================
         FileName:     WinFormsCreator.ps1
-        Author:       PSWinFormsCreator.com Admin (Benjamin Turmo)
+        Modified:     Brandon Cunningham
         Created On:   1/15/2020
-        Last Updated: 12/14/2020
-        Version:      v2.0.0.0
+        Last Updated: 4/13/2022
+        Version:      v2.0.2.0
     ===========================================================================
 
     .DESCRIPTION
