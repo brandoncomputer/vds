@@ -91,7 +91,7 @@ SOFTWARE.
 		Fixed Save and Save As functions to not be locked to preset directory
 		Assigned controls to variables rather than a script reference array and removed abstract reference table.
 		If the VDS Module is installed, it is integrated into the script file output.
-		Added DataGrid, HScrollBar, StatusStrip, TrackBar, VScrollBar
+		Added DataGrid, HScrollBar, StatusStrip, TrackBar, VScrollBar,ToolStripButton,ToolStripSplitButton
 		
 BASIC MODIFICATIONS License
 #This software has been modified from the original as tagged with #brandoncomputer
@@ -515,14 +515,20 @@ $sbGUI = {
                     if ( $objRef.Success -ne $false ) {
                         $newControl = New-Object System.Windows.Forms.$ControlType
                         $newControl.Name = $ControlName
-
+						#brandoncomputer
+					if ( $ControlType -eq "ToolStrip" ) {
+						$objRef.Objects[$TreeObject.Name].Controls.Add($newControl)}
+					else{
                         if ( $ControlType -match "^ToolStrip" ) {
                             if ( $objRef.Objects[$TreeObject.Name].GetType().Name -match "^ToolStrip" ) {[void]$objRef.Objects[$TreeObject.Name].DropDownItems.Add($newControl)}
                             else {[void]$objRef.Objects[$TreeObject.Name].Items.Add($newControl)}
                         } elseif ( $ControlType -eq 'ContextMenuStrip' ) {
                             $objRef.Objects[$TreeObject.Name].ContextMenuStrip = $newControl
                         } else {$objRef.Objects[$TreeObject.Name].Controls.Add($newControl)}
+					}
+						
 
+							
                         try {
                             $newControl.Add_MouseUp({
                                 if (( $Script:refs['PropertyGrid'].SelectedObject -ne $this ) -and ( $args[1].Button -eq 'Left' )) {
@@ -2208,6 +2214,8 @@ $sbGUI = {
             [pscustomobject]@{Name='TabPage';Prefix='tpg';Type='TabControl';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TableLayoutPanel';Prefix='tlp';Type='Container';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TextBox';Prefix='tbx';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='ToolStripButton';Prefix='tsb';Type='MenuStrip-Root';ChildTypes=@()},
+			[pscustomobject]@{Name='ToolStripSplitButton';Prefix='tss';Type='MenuStrip-Root';ChildTypes=@('MenuStrip-Root')},
             [pscustomobject]@{Name='Timer';Prefix='tmr';Type='Parentless';ChildTypes=@()}, 
 			[pscustomobject]@{Name='TrackBar';Prefix='tbr';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='TreeView';Prefix='tvw';Type='Common';ChildTypes=@('Context')},
