@@ -90,8 +90,7 @@ SOFTWARE.
 		Fixed generation of and behavior of common dialogs, which did not work previously.
 		Assigned controls to variables rather than a script reference array and removed abstract reference table.
 		If the VDS Module is installed, it is integrated into the script file output.
-	2.0.2.1
-		Fixed issue with Context Menus.
+		Added DataGrid, HScrollBar, StatusStrip, TrackBar, VScrollBar
 		
 BASIC MODIFICATIONS License
 #This software has been modified from the original as tagged with #brandoncomputer
@@ -2174,13 +2173,15 @@ $sbGUI = {
             [pscustomobject]@{Name='ColorDialog';Prefix='cld';Type='Parentless';ChildTypes=@()},
             [pscustomobject]@{Name='ComboBox';Prefix='cmb';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='ContextMenuStrip';Prefix='cms';Type='Context';ChildTypes=@('MenuStrip-Root','MenuStrip-Child')},
-            [pscustomobject]@{Name='DataGridView';Prefix='dgv';Type='Common';ChildTypes=@('Context')},
+            [pscustomobject]@{Name='DataGrid';Prefix='dgr';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='DataGridView';Prefix='dgv';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='DateTimePicker';Prefix='dtp';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='FlowLayoutPanel';Prefix='flp';Type='Container';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='FolderBrowserDialog';Prefix='fbd';Type='Parentless';ChildTypes=@()},
             [pscustomobject]@{Name='FontDialog';Prefix='fnd';Type='Parentless';ChildTypes=@()},
             [pscustomobject]@{Name='GroupBox';Prefix='gbx';Type='Container';ChildTypes=@('Common','Container','MenuStrip','Context')},
-            [pscustomobject]@{Name='Label';Prefix='lbl';Type='Common';ChildTypes=@('Context')},
+            [pscustomobject]@{Name='HScrollBar';Prefix='hsc';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='Label';Prefix='lbl';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='LinkLabel';Prefix='llb';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='ListBox';Prefix='lbx';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='ListView';Prefix='lsv';Type='Common';ChildTypes=@('Context')},  # need to fix issue with VirtualMode when 0 items
@@ -2201,14 +2202,16 @@ $sbGUI = {
             [pscustomobject]@{Name='SaveFileDialog';Prefix='sfd';Type='Parentless';ChildTypes=@()},
             [pscustomobject]@{Name='SplitContainer';Prefix='scr';Type='Container';ChildTypes=@('Context')},
             [pscustomobject]@{Name='SplitterPanel';Prefix='spl';Type='SplitContainer';ChildTypes=@('Common','Container','MenuStrip','Context')},
-            [pscustomobject]@{Name='TabControl';Prefix='tcl';Type='Common';ChildTypes=@('Context','TabControl')},
+            [pscustomobject]@{Name='StatusStrip';Prefix='sta';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='TabControl';Prefix='tcl';Type='Common';ChildTypes=@('Context','TabControl')},
             [pscustomobject]@{Name='TabPage';Prefix='tpg';Type='TabControl';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TableLayoutPanel';Prefix='tlp';Type='Container';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TextBox';Prefix='tbx';Type='Common';ChildTypes=@('Context')},
-            [pscustomobject]@{Name='Timer';Prefix='tmr';Type='Parentless';ChildTypes=@()},
+            [pscustomobject]@{Name='Timer';Prefix='tmr';Type='Parentless';ChildTypes=@()}, 
+			[pscustomobject]@{Name='TrackBar';Prefix='tbr';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='TreeView';Prefix='tvw';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='WebBrowser';Prefix='wbr';Type='Common';ChildTypes=@('Context')},
-			[pscustomobject]@{Name='StatusStrip';Prefix='sta';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='VScrollBar';Prefix='vsc';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='ToolStripMenuItem';Prefix='tmi';Type='MenuStrip-Root';ChildTypes=@('MenuStrip-Root','MenuStrip-Child')},
             [pscustomobject]@{Name='ToolStripComboBox';Prefix='tcb';Type='MenuStrip-Root';ChildTypes=@()},
             [pscustomobject]@{Name='ToolStripTextBox';Prefix='ttb';Type='MenuStrip-Root';ChildTypes=@()},
