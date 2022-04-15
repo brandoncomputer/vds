@@ -29,7 +29,7 @@ SOFTWARE.
         Modified:     Brandon Cunningham
         Created On:   1/15/2020
         Last Updated: 4/13/2022
-        Version:      v2.0.2.0
+        Version:      v2.0.2.1
     ===========================================================================
 
     .DESCRIPTION
@@ -92,6 +92,9 @@ SOFTWARE.
 		Assigned controls to variables rather than a script reference array and removed abstract reference table.
 		If the VDS Module is installed, it is integrated into the script file output.
 		Added DataGrid, HScrollBar, StatusStrip, TrackBar, VScrollBar,ToolStripButton,ToolStripSplitButton
+	2.0.2.1 - 4/14/2022
+		Changed location of vds module export, added to functions
+		Added ToolStrip, just for layout purposes. Cannot add items within GUI
 		
 BASIC MODIFICATIONS License
 #This software has been modified from the original as tagged with #brandoncomputer
@@ -1282,6 +1285,15 @@ $sbGUI = {
                                 # Functions
                             $Script:templateText.StartRegion_Functions.ForEach({$scriptText.Add($_)})
 
+							#brandoncomputer
+							
+							if ( (Test-Path -Path "$(path $(Get-Module -ListAvailable vds).path)" -PathType Container) -eq $true ) {
+								$vdsArr = (get-content -path "$(path $(Get-Module -ListAvailable vds).path)\vds.psm1").split([Environment]::NewLine)
+								foreach ($arrItem in $vdsArr){
+									$scriptText.Add($arrItem)
+								}
+							}
+							
                             $Script:templateText.Function_Update_ErrorLog.ForEach({$scriptText.Add($_)})
                             $Script:templateText.Function_ConvertFrom_WinFormsXML.ForEach({$scriptText.Add($_)})
                             if (( $Script:refsGenerate['gbx_ChildForms'].Controls.Count -gt 2 ) -or ( $xml.Data.ChildNodes.Count -gt 3 )) {$Script:templateText.Function_Get_CustomControl.ForEach({$scriptText.Add($_)})}
@@ -1557,15 +1569,7 @@ $sbGUI = {
                             
 							}
 						
-							
-							#brandoncomputer
-							
-							if ( (Test-Path -Path "$(path $(Get-Module -ListAvailable vds).path)" -PathType Container) -eq $true ) {
-							$scriptText = (get-content -path "$(path $(Get-Module -ListAvailable vds).path)\vds.psm1")+'
-							'+$scriptText
-							}							
-							
-                            $scriptText | Out-File "$($generationPath)\$($projectName -replace "fbs$","ps1")" -Encoding ASCII -Force
+							$scriptText | Out-File "$($generationPath)\$($projectName -replace "fbs$","ps1")" -Encoding ASCII -Force
 
                             [void][System.Windows.Forms.MessageBox]::Show('Script file(s) successfully generated!','Success')
                         }
@@ -2172,7 +2176,7 @@ $sbGUI = {
         $Script:newNameCheck = $true
         $Script:openingProject = $false
         $Script:MouseMoving = $false
-
+#brandoncomputer
         $Script:supportedControls = @(
             [pscustomobject]@{Name='Button';Prefix='btn';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='CheckBox';Prefix='cbx';Type='Common';ChildTypes=@('Context')},
@@ -2208,12 +2212,13 @@ $sbGUI = {
             [pscustomobject]@{Name='RichTextBox';Prefix='rtb';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='SaveFileDialog';Prefix='sfd';Type='Parentless';ChildTypes=@()},
             [pscustomobject]@{Name='SplitContainer';Prefix='scr';Type='Container';ChildTypes=@('Context')},
-            [pscustomobject]@{Name='SplitterPanel';Prefix='spl';Type='SplitContainer';ChildTypes=@('Common','Container','MenuStrip','Context')},
+			[pscustomobject]@{Name='SplitterPanel';Prefix='spl';Type='SplitContainer';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='StatusStrip';Prefix='sta';Type='Common';ChildTypes=@('Context')},
 			[pscustomobject]@{Name='TabControl';Prefix='tcl';Type='Common';ChildTypes=@('Context','TabControl')},
             [pscustomobject]@{Name='TabPage';Prefix='tpg';Type='TabControl';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TableLayoutPanel';Prefix='tlp';Type='Container';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TextBox';Prefix='tbx';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='ToolStrip';Prefix='tls';Type='Common';ChildTypes=@('Context')},
 			[pscustomobject]@{Name='ToolStripButton';Prefix='tsb';Type='MenuStrip-Root';ChildTypes=@()},
 			[pscustomobject]@{Name='ToolStripSplitButton';Prefix='tss';Type='MenuStrip-Root';ChildTypes=@('MenuStrip-Root')},
             [pscustomobject]@{Name='Timer';Prefix='tmr';Type='Parentless';ChildTypes=@()}, 
@@ -2515,11 +2520,18 @@ vs7bAAAAAElFTkSuQmCC
                 "            if ( `$Xml.ToString() -ne 'SplitterPanel' ) {`$newControl = New-Object System.Windows.Forms.`$(`$Xml.ToString())}",
                 "",
                 "            if ( `$ParentControl ) {",
+				"				#brandoncomputer",
+				"				if ( `$Xml.ToString() -eq 'ToolStrip' ) {",
+				"					`$newControl = New-Object System.Windows.Forms.`$(`$Xml.ToString()",
+				"					`$ParentControl.Controls.Add(`$newControl))",
+				"				}",
+				"				else {",
                 "                if ( `$Xml.ToString() -match `"^ToolStrip`" ) {",
                 "                    if ( `$ParentControl.GetType().Name -match `"^ToolStrip`" ) {[void]`$ParentControl.DropDownItems.Add(`$newControl)} else {[void]`$ParentControl.Items.Add(`$newControl)}",
                 "                } elseif ( `$Xml.ToString() -eq 'ContextMenuStrip' ) {`$ParentControl.ContextMenuStrip = `$newControl}",
                 "                elseif ( `$Xml.ToString() -eq 'SplitterPanel' ) {`$newControl = `$ParentControl.`$(`$Xml.Name.Split('_')[-1])}",
                 "                else {`$ParentControl.Controls.Add(`$newControl)}",
+				"				}",
                 "            }",
                 "",
                 "            `$Xml.Attributes | ForEach-Object {",
