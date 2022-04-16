@@ -95,6 +95,12 @@ SOFTWARE.
 	2.0.2.1 - 4/14/2022
 		Changed location of vds module export, added to functions
 		Added ToolStrip, just for layout purposes. Cannot add items within GUI
+	2.0.2.2 - 4/15/2022
+		Added FastColoredTextBox for editing events - attached to \Events.ps1
+		Added 'RunLast' function
+		'Copy' and 'Paste' shortcuts (CTRL+C, CTRL+V) broken by addition of FastColoredTextBox. Removed shortcuts.
+		Created menu items and context menu for FastColoredTextBox
+		Removed (unlisted in version 2.0.2.0) backup system now that Event outputs are much harder to overwrite.
 		
 BASIC MODIFICATIONS License
 #This software has been modified from the original as tagged with #brandoncomputer
@@ -123,6 +129,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 		
 #>
+
 
 # ScriptBlock to Execute in STA Runspace
 $sbGUI = {
@@ -266,8 +273,8 @@ $sbGUI = {
                         } else {$value = $_.Value}
                     } else {$value = $_.Value}
 					
-					#brandoncomputer
-					
+					#brandoncomputer_ContextStripModify
+				
                     try {if ($controlType -ne "ContextMenuStrip") {$newControl.$($_.ToString()) = $value}}
                     catch {if ( $_.Exception.Message -notmatch 'MDI container forms must be top-level' ) {throw $_}}
 
@@ -356,6 +363,7 @@ $sbGUI = {
                         # Create the TreeNode
                     $newTreeNode = $TreeObject.Nodes.Add($ControlName,"Form - $($ControlName)")
 
+	
                         # Create the Form
                     $form = New-Object System.Windows.Forms.Form
                     $form.Name = $ControlName
@@ -518,7 +526,7 @@ $sbGUI = {
                     if ( $objRef.Success -ne $false ) {
                         $newControl = New-Object System.Windows.Forms.$ControlType
                         $newControl.Name = $ControlName
-						#brandoncomputer
+						#brandoncomputer_ToolStripException
 					if ( $ControlType -eq "ToolStrip" ) {
 						$objRef.Objects[$TreeObject.Name].Controls.Add($newControl)}
 					else{
@@ -728,7 +736,7 @@ $sbGUI = {
                     $projectName = ''
                 } finally {
                     $saveDialog.Dispose()
-					#brandoncomputer
+					#brandoncomputer_SaveDialogFix
 					$global:projectDirName = $saveDialog.FileName
                     Remove-Variable -Name saveDialog
                 }
@@ -910,11 +918,22 @@ $sbGUI = {
 				
                 if ( $ReturnXML ) {return $xml}
                 else {
-					#brandoncomputer
+					#brandoncomputer_SaveFix
                     #$xml.Save("$($Script:projectsDir)\$($projectName)")
 					$xml.Save($global:projectDirName)
 
                     $refs['tpg_Form1'].Text = $projectName
+					
+					#brandoncomputer_FastTextSaveFile
+					$generationPath = "$(Split-Path -Path $global:projectDirName)\$($projectName -replace "\..*$")"
+					if (Test-Path -path $generationPath) {
+						#do nothing
+					}
+					else {
+					New-Item -ItemType directory -Path $generationPath
+					}
+					$ascii = new-object System.Text.ASCIIEncoding
+					$FastText.SaveToFile("$generationPath\Events.ps1",$ascii)
 
                     if ( $Suppress -eq $false ) {[void][System.Windows.Forms.MessageBox]::Show('Successfully Saved!','Success')}
                 }
@@ -1036,8 +1055,17 @@ $sbGUI = {
                         $Script:refsFID.Form.Objects[$($Script:refs['TreeView'].Nodes | Where-Object { $_.Text -match "^Form - " }).Name].Visible = $true
                         $Script:refs['tpg_Form1'].Text = "$($openDialog.FileName -replace "^.*\\")"
                         $Script:refs['TreeView'].SelectedNode = $Script:refs['TreeView'].Nodes | Where-Object { $_.Text -match "^Form - " }
-						#brandoncomputer
+						#brandoncomputer_OpenDialogFix					
+
 						$global:projectDirName = $openDialog.FileName
+					#brandoncomputer_FastTextOpenFile
+					$projectName = $Script:refs['tpg_Form1'].Text
+					$generationPath = "$(Split-Path -Path $global:projectDirName)\$($projectName -replace "\..*$")"
+					
+					if (Test-Path -path "$generationPath\Events.ps1") {
+						$FastText.OpenFile("$generationPath\Events.ps1")
+					}
+					
                     } catch {Update-ErrorLog -ErrorRecord $_ -Message "Exception encountered while opening $($fileName)."}
                     finally {
                         $Script:openingProject = $false
@@ -1246,7 +1274,7 @@ $sbGUI = {
                         $Script:refsGenerate['Generate'].AcceptButton = $Script:refsGenerate['btn_Generate']
 
                         $projectName = $Script:refs['tpg_Form1'].Text
-						#brandoncomputer
+						#brandoncomputer_GenerationPathFix
                         $projectFilePath = $global:projectDirName
 						Split-Path -Path $global:projectDirName
                         $generationPath = "$(Split-Path -Path $global:projectDirName)\$($projectName -replace "\..*$")"
@@ -1254,7 +1282,7 @@ $sbGUI = {
                         $xmlText = Get-Content -Path "$($projectFilePath)"
                         [xml]$xml = $xmlText
                             # Disable checkboxes based on necessity
-							#brandoncomputer
+							#brandoncomputer_Unsure
                         if ( $xml.Data.Events.ChildNodes.Count -gt 0 ) {$Script:refsGenerate['cbx_Events'].Enabled = $true} else {$Script:refsGenerate['cbx_Events'].Enabled = $false}
                         if ( $Script:refsGenerate['gbx_ChildForms'].Controls.Count -gt 2 ) {$Script:refsGenerate['cbx_ChildForms'].Enabled = $true} else {$Script:refsGenerate['cbx_ChildForms'].Enabled = $false}
                         if ( $xml.Data.ContextMenuStrip ) {$Script:refsGenerate['cbx_ReuseContext'].Enabled = $true} else {$Script:refsGenerate['cbx_ReuseContext'].Enabled = $false}
@@ -1285,7 +1313,7 @@ $sbGUI = {
                                 # Functions
                             $Script:templateText.StartRegion_Functions.ForEach({$scriptText.Add($_)})
 
-							#brandoncomputer
+							#brandoncomputer_AddVDSModule
 							
 							if ( (Test-Path -Path "$(path $(Get-Module -ListAvailable vds).path)" -PathType Container) -eq $true ) {
 								$vdsArr = (get-content -path "$(path $(Get-Module -ListAvailable vds).path)\vds.psm1").split([Environment]::NewLine)
@@ -1301,7 +1329,7 @@ $sbGUI = {
                             $Script:templateText.EndRegion_Functions.ForEach({$scriptText.Add($_)})
 
                                 # Event Scriptblocks
-								#brandoncomputer
+								#brandoncomputer_OldScriptBlockAbstraction
 <#                             if ( $($xml.Data.Events.ChildNodes | Where-Object { $_.Root -match "^Form" }) ) {
                                 $Script:templateText.StartRegion_Events.ForEach({$scriptText.Add($_)})
 
@@ -1445,7 +1473,7 @@ $sbGUI = {
                                             $scriptText.Add("            )")
                                             $scriptText.Add("        }")
                                         } else {$scriptText.Add("        }")}
-									#brandoncomputer
+									#brandoncomputer_DialogCount
 								   $dialogCount = $dialogCount + 1
 									}
 
@@ -1501,7 +1529,7 @@ $sbGUI = {
                                 ""
                             ).ForEach({$scriptText.Add($_)})
 							
-							#brandoncomputer
+							#brandoncomputer_NotSure
 							if ( $Script:refsGenerate['cbx_Events'].Checked ) {$scriptText.Add("    . `"`$(`$dotSourceDir)\$($Script:refsGenerate['tbx_Events'].Text)`"")}
 							
                                 # Event Assignment
@@ -1512,18 +1540,25 @@ $sbGUI = {
                                     $name = $_.Name
 
                                     $_.Events -Split ' ' | ForEach-Object {
-										#brandoncomputer
+										#brandoncomputer_RemoveContextMenuStripAttribute
 				$nodes = $xml.SelectNodes('//*')
 				foreach ($node in $nodes) {
 					$nodes.RemoveAttribute('ContextMenuStrip')
 				}
-									$scriptText.Add("	`$$name.Add_$($_)({
+				#brandoncomputer_ControlDirectReference
+			#						$scriptText.Add("	`$$name.Add_$($_)({
 		
-	})")}
-										#$scriptText.Add("        `$Script:refs['$($name)'].Add_$($_)(`$eventSB['$($name)'].$($_))")}
+#})")#$scriptText.Add("        `$Script:refs['$($name)'].Add_$($_)(`$eventSB['$($name)'].$($_))")}
+	
+									}		
                                 }
+								#brandoncomputer_FastTextScriptTextAdd
+								$fastArr = ($FastText.Text).split([byte][char]13+[byte][char]10)
+								foreach ($arrItem in $fastArr){
+									$scriptText.Add($arrItem)
+								}
 								
-								#brandoncomputer
+								#brandoncomputer_Uhh....
 								#$scriptText.Add($controlScriptInit)
 
                                 $Script:templateText.EndRegion_Events.ForEach({$scriptText.Add($_)})
@@ -1531,7 +1566,7 @@ $sbGUI = {
 
                                 # Other Actions Before ShowDialog
                             $Script:templateText.Region_OtherActions.ForEach({$scriptText.Add($_)})
-							#brandoncomputer
+							#brandoncomputer_NotSure
 							$scriptText.Add($controlScriptInit)
                             $scriptText.Add("    try {[void]`$Script:refs['$($xml.Data.Form.Name)'].ShowDialog()} catch {Update-ErrorLog -ErrorRecord `$_ -Message `"Exception encountered unexpectedly at ShowDialog.`"}")
                             $scriptText.Add("")
@@ -1543,7 +1578,7 @@ $sbGUI = {
                             $Script:templateText.Region_StartPoint.ForEach({$scriptText.Add($_)})
 
                                 # Split Dot Sourced code to separate files
-								#brandoncomputer
+								#brandoncomputer_AddWarning
 							$ask = [System.Windows.Forms.MessageBox]::Show("Overwrite previous exports?", 'Confirm', 4) 
                             if ( $Script:refsGenerate['gbx_DotSource'].Controls.Checked -contains $true ) {
                                 $Script:refsGenerate['gbx_DotSource'].Controls.Where({$_.Checked -eq $true}) | ForEach-Object {
@@ -1568,7 +1603,7 @@ $sbGUI = {
                                 }
                             
 							}
-						
+							
 							$scriptText | Out-File "$($generationPath)\$($projectName -replace "fbs$","ps1")" -Encoding ASCII -Force
 
                             [void][System.Windows.Forms.MessageBox]::Show('Script file(s) successfully generated!','Success')
@@ -1688,7 +1723,7 @@ $sbGUI = {
                 $controlName = $this.SelectedNode.Name
 
                 if ( $controlName -eq 'ContextMenuStrip' ) {
-					#brandoncomputer
+					#brandoncomputer_RemoveGlobalContextMenuStrip
 					$context = 1
                 } else {$context = 2}
 
@@ -1719,6 +1754,8 @@ $sbGUI = {
                 }
             }
         }
+		
+		
         'lst_AvailableEvents' = @{
             DoubleClick = {
                 $controlName = $Script:refs['TreeView'].SelectedNode.Name
@@ -1730,6 +1767,15 @@ $sbGUI = {
                     $Script:refs['lst_AssignedEvents'].Enabled = $true
 
                     $objRef.Events[$controlName] = @($Script:refs['lst_AssignedEvents'].Items)
+					
+					#brandoncomputer_AddEventtoFastText
+					$FastText.GoEnd()
+					$FastText.SelectedText = "`$$ControlName.add_$($this.SelectedItem)({
+	
+})
+
+"
+					
                 }
             }
         }
@@ -1888,7 +1934,7 @@ $sbGUI = {
                 }
             )
         }
-		#brandoncomputer
+		#brandoncomputer_ChangeExports
         'Generate' = @{
             XMLText = @"
   <Form Name="Generate" FormBorderStyle="FixedDialog" MaximizeBox="False" MinimizeBox="False" ShowIcon="False" ShowInTaskbar="False" Size="410, 420" StartPosition="CenterParent" Text="Generate Script File(s)">
@@ -2052,10 +2098,10 @@ $sbGUI = {
                     Name = 'btn_Generate'
                     EventType = 'Click'
                     ScriptBlock = {
-					#brandoncomputer
-					$backup = "$(get-date -format 'yyyyMMddHHmm-dddd')"
-						if ( (Test-Path -Path "$($generationPath)\$backup" -PathType Container) -eq $false ) {New-Item -Path "$($generationPath)\$backup" -ItemType Directory | Out-Null}
-                        copy-item -path "$($generationPath)\*.*" -destination "$($generationPath)\$backup"
+					#brandoncomputer_CreateBackup(Removed)
+					#$backup = "$(get-date -format 'yyyyMMddHHmm-dddd')"
+						#if ( (Test-Path -Path "$($generationPath)\$backup" -PathType Container) -eq $false ) {New-Item -Path "$($generationPath)\$backup" -ItemType Directory | Out-Null}
+                      #  copy-item -path "$($generationPath)\*.*" -destination "$($generationPath)\$backup"
 						$fileError = 0
                         [array]$checked = $Script:refsGenerate['gbx_DotSource'].Controls.Where({$_.Checked -eq $true})
 
@@ -2176,7 +2222,7 @@ $sbGUI = {
         $Script:newNameCheck = $true
         $Script:openingProject = $false
         $Script:MouseMoving = $false
-#brandoncomputer
+#brandoncomputer_Controls
         $Script:supportedControls = @(
             [pscustomobject]@{Name='Button';Prefix='btn';Type='Common';ChildTypes=@('Context')},
             [pscustomobject]@{Name='CheckBox';Prefix='cbx';Type='Common';ChildTypes=@('Context')},
@@ -2264,8 +2310,9 @@ $sbGUI = {
     #region Main Form Initialization
 
     try {
+		#brandoncomputer_FixWindowState
         ConvertFrom-WinFormsXML -Reference refs -Suppress -Xml @"
-  <Form Name="MainForm" IsMdiContainer="True" Size="800,600" WindowState="Normal" Text="PowerShell WinForms Creator">
+  <Form Name="MainForm" IsMdiContainer="True" Size="800,600" WindowState="Maximized" Text="PowerShell WinForms Creator">
     <TabControl Name="tcl_Top" Dock="Top" Size="10,20">
         <TabPage Name="tpg_Form1" Text="NewProject.fbs" />
     </TabControl>
@@ -2315,12 +2362,27 @@ $sbGUI = {
         <ToolStripMenuItem Name="Rename" ShortcutKeys="Ctrl+R" Text="Rename" ShortcutKeyDisplayString="Ctrl+R" />
         <ToolStripMenuItem Name="Delete" ShortcutKeys="Ctrl+D" Text="Delete" ShortcutKeyDisplayString="Ctrl+D" />
         <ToolStripSeparator Name="EditSep1" />
-        <ToolStripMenuItem Name="CopyNode" ShortcutKeys="Ctrl+C" Text="Copy" ShortcutKeyDisplayString="Ctrl+C" />
-        <ToolStripMenuItem Name="PasteNode" ShortcutKeys="Ctrl+P" Text="Paste" ShortcutKeyDisplayString="Ctrl+P" />
+        <ToolStripMenuItem Name="CopyNode" Text="Copy Control" />
+        <ToolStripMenuItem Name="PasteNode" Text="Paste Control" />
         <ToolStripSeparator Name="EditSep2" />
         <ToolStripMenuItem Name="Move Up" ShortcutKeys="F5" Text="Move Up" ShortcutKeyDisplayString="F5" />
         <ToolStripMenuItem Name="Move Down" ShortcutKeys="F6" Text="Move Down" ShortcutKeyDisplayString="F6" />
-      </ToolStripMenuItem>
+		<ToolStripSeparator Name="EditSep3" />
+		<ToolStripMenuItem Name="Undo" ShortcutKeys="Ctrl+Z" Text="Undo" ShortcutKeyDisplayString="Ctrl+Z" />
+		<ToolStripMenuItem Name="Redo" ShortcutKeys="Ctrl+Y" Text="Redo" ShortcutKeyDisplayString="Ctrl+Y" />
+		<ToolStripSeparator Name="EditSep4" />
+		<ToolStripMenuItem Name="Cut" ShortcutKeys="Ctrl+X" Text="Cut" ShortcutKeyDisplayString="Ctrl+X" />
+		<ToolStripMenuItem Name="Copy" ShortcutKeys="Ctrl+C" Text="Copy" ShortcutKeyDisplayString="Ctrl+C" />
+		<ToolStripMenuItem Name="Paste" ShortcutKeys="Ctrl+V" Text="Paste" ShortcutKeyDisplayString="Ctrl+V" />
+		<ToolStripMenuItem Name="Select All" ShortcutKeys="Ctrl+A" Text="Select All" ShortcutKeyDisplayString="Ctrl+A" />		
+		<ToolStripSeparator Name="EditSep5" />
+		<ToolStripMenuItem Name="Find" ShortcutKeys="Ctrl+F" Text="Find" ShortcutKeyDisplayString="Ctrl+F" />
+		<ToolStripMenuItem Name="Replace" ShortcutKeys="Ctrl+H" Text="Replace" ShortcutKeyDisplayString="Ctrl+H" />
+		<ToolStripMenuItem Name="Goto" ShortcutKeys="Ctrl+G" Text="Go To Line..." ShortcutKeyDisplayString="Ctrl+G" />
+		<ToolStripSeparator Name="EditSep6" />
+		<ToolStripMenuItem Name="Collapse All" ShortcutKeys="F7" Text="Collapse All" ShortcutKeyDisplayString="F7" />
+		<ToolStripMenuItem Name="Expand All" ShortcutKeys="F8" Text="Expand All" ShortcutKeyDisplayString="F8" />
+	  </ToolStripMenuItem>
       <ToolStripMenuItem Name="ts_View" Text="View">
         <ToolStripMenuItem Name="Toolbox" Checked="True" ShortcutKeys="F1" Text="Toolbox" ShortcutKeyDisplayString="F1" />
         <ToolStripMenuItem Name="FormTree" Checked="True" ShortcutKeys="F2" DisplayStyle="Text" Text="Form Tree" ShortcutKeyDisplayString="F2" />
@@ -2329,6 +2391,7 @@ $sbGUI = {
       </ToolStripMenuItem>
       <ToolStripMenuItem Name="ts_Tools" DisplayStyle="Text" Text="Tools">
         <ToolStripMenuItem Name="Generate Script File" DisplayStyle="Text" Text="Generate Script File" />
+		<ToolStripMenuItem Name="RunLast" ShortcutKeys="F9" DisplayStyle="Text" Text="Save Events.ps1 and Run Last Generated" />
       </ToolStripMenuItem>
     </MenuStrip>
   </Form>
@@ -2367,6 +2430,68 @@ $sbGUI = {
         $Script:refs['trv_Controls'].Add_DoubleClick($eventSB['trv_Controls'].DoubleClick)
         $Script:refs['lst_AvailableEvents'].Add_DoubleClick($eventSB['lst_AvailableEvents'].DoubleClick)
         $Script:refs['lst_AssignedEvents'].Add_DoubleClick($eventSB['lst_AssignedEvents'].DoubleClick)
+		
+		$Script:refs['RunLast'].Add_Click({
+			$projectName = $refs['tpg_Form1'].Text	
+			if ($projectName -ne "NewProject.fbs") { 					
+			$generationPath = "$(Split-Path -Path $global:projectDirName)\$($projectName -replace "\..*$")"
+				if (Test-Path -path $generationPath) {
+					#do nothing
+				}
+				else {
+				New-Item -ItemType directory -Path $generationPath
+				}
+				$ascii = new-object System.Text.ASCIIEncoding
+				$FastText.SaveToFile("$generationPath\Events.ps1",$ascii)
+				$file = "$($generationPath)\$($projectName -replace "fbs$","ps1")"
+
+				start-process -filepath powershell.exe -argumentlist '-ep bypass','-sta',"-file $file"
+			}
+		})
+		
+		$Script:refs['Undo'].Add_Click({
+			$FastText.Undo()
+		})
+		
+		$Script:refs['Redo'].Add_Click({
+			$FastText.Redo()
+		})
+		
+		$Script:refs['Cut'].Add_Click({
+			$FastText.Cut()
+		})
+		
+		$Script:refs['Copy'].Add_Click({
+			$FastText.Copy()
+		})
+		
+		$Script:refs['Paste'].Add_Click({
+			$FastText.Paste()
+		})
+		
+		$Script:refs['Select All'].Add_Click({
+			$FastText.SelectAll()
+		})
+		
+		$Script:refs['Find'].Add_Click({
+			$FastText.ShowFindDialog()
+		})
+		
+		$Script:refs['Replace'].Add_Click({
+			$FastText.ShowReplaceDialog()
+		})
+		
+		$Script:refs['Goto'].Add_Click({
+			$FastText.ShowGotoDialog()
+		})
+		
+		$Script:refs['Expand All'].Add_Click({
+			$FastText.ExpandAllFoldingBlocks()
+		})
+		
+		$Script:refs['Collapse All'].Add_Click({
+			$FastText.CollapseAllFoldingBlocks()
+		})
 
             # ScriptBlock Here
         $Script:refs['Exit'].Add_Click({$Script:refs['MainForm'].Close()})
@@ -2520,7 +2645,7 @@ vs7bAAAAAElFTkSuQmCC
                 "            if ( `$Xml.ToString() -ne 'SplitterPanel' ) {`$newControl = New-Object System.Windows.Forms.`$(`$Xml.ToString())}",
                 "",
                 "            if ( `$ParentControl ) {",
-				"				#brandoncomputer",
+				"				#brandoncomputer_ToolStripFix_Export",
 				"				if ( `$Xml.ToString() -eq 'ToolStrip' ) {",
 				"					`$newControl = New-Object System.Windows.Forms.`$(`$Xml.ToString()",
 				"					`$ParentControl.Controls.Add(`$newControl))",
@@ -2558,7 +2683,7 @@ vs7bAAAAAElFTkSuQmCC
                 "                                    if ( `$attrib.Value -eq 'True' ) {`$value = `$true} else {`$value = `$false}",
                 "                                } else {`$value = `$attrib.Value}",
                 "                            } else {`$value = `$attrib.Value}",
-				"							#brandoncomputer",
+				"							#brandoncomputer_VariousDialogFixesInExport",
 				"							switch (`$xml.ToString()) {",
 				"								`"FolderBrowserDialog`" {",
 				"									if (`$xml.Description)",
@@ -2762,7 +2887,7 @@ vs7bAAAAAElFTkSuQmCC
                 "",
 				"",
 				"",
-				"`#brandoncomputer",
+				"`#brandoncomputer_DirectReferenceObjectsExport",
 				"           	if (`$newControl.Name){",
                 "             		New-Variable -Name `$newControl.Name -Scope Script -Value `$newControl | Out-Null",
 				"             	}",
@@ -2874,7 +2999,7 @@ vs7bAAAAAElFTkSuQmCC
 			StartRegion_Events = ([string[]]`
                 "    #region Event ScriptBlocks",
                 ""
-				#brandoncomputer
+				#brandoncomputer_RemoveAbstractionFromRegion
                # "    `$eventSB = @{"
             )
 			           #     "    }",
@@ -2961,7 +3086,95 @@ vs7bAAAAAElFTkSuQmCC
     #endregion Other Actions Before ShowDialog
 
         # Show the form
-    try {[void]$Script:refs['MainForm'].ShowDialog()} catch {Update-ErrorLog -ErrorRecord $_ -Message "Exception encountered unexpectedly at ShowDialog."}
+    try {
+		#brandoncomputer_FastTextEditWindowCreate
+$eventForm = New-Object System.Windows.Forms.Form
+$eventForm.Text = "Events"
+[Reflection.Assembly]::LoadFile("$(curdir)\FastColoredTextBox.dll") | out-null
+$FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
+$FastText.Language = "DialogShell"
+$FastText.Dock = "Fill"
+$eventForm.Controls.Add($FastText)
+#$eventForm.isMDIChild = $true
+$eventForm.MDIParent = $refs['MainForm']
+$eventForm.Dock = "Bottom"
+$eventForm.ControlBox = $false
+$eventForm.TopMost = $true
+#$eventForm.TopLevel = $true
+$eventForm.ShowIcon = $false
+
+$xpopup = New-Object System.Windows.Forms.ContextMenuStrip
+$undo = new-object System.Windows.Forms.ToolStripMenuItem
+$undo.text = "Undo"
+$undo.Add_Click({$FastText.Undo()})
+$xpopup.Items.Add($undo)
+
+$redo = new-object System.Windows.Forms.ToolStripMenuItem
+$redo.text = "Redo"
+$redo.Add_Click({$FastText.Redo()})
+$xpopup.Items.Add($redo)
+
+$xpSep1 = new-object System.Windows.Forms.ToolStripSeparator
+$xpopup.Items.Add($xpSep1)
+
+$Cut = new-object System.Windows.Forms.ToolStripMenuItem
+$Cut.text = "Cut"
+$Cut.Add_Click({$FastText.Cut()})
+$xpopup.Items.Add($Cut)
+
+$Copy = new-object System.Windows.Forms.ToolStripMenuItem
+$Copy.text = "Copy"
+$Copy.Add_Click({$FastText.Copy()})
+$xpopup.Items.Add($Copy)
+
+$Paste = new-object System.Windows.Forms.ToolStripMenuItem
+$Paste.text = "Paste"
+$Paste.Add_Click({$FastText.Paste()})
+$xpopup.Items.Add($Paste)
+
+$SelectAll = new-object System.Windows.Forms.ToolStripMenuItem
+$SelectAll.text = "Select All"
+$SelectAll.Add_Click({$FastText.SelectAll()})
+$xpopup.Items.Add($SelectAll)
+
+$xpSep2 = new-object System.Windows.Forms.ToolStripSeparator
+$xpopup.Items.Add($xpSep2)
+
+$Find = new-object System.Windows.Forms.ToolStripMenuItem
+$Find.text = "Find"
+$Find.Add_Click({$FastText.ShowFindDialog()})
+$xpopup.Items.Add($Find)
+
+$Replace = new-object System.Windows.Forms.ToolStripMenuItem
+$Replace.text = "Replace"
+$Replace.Add_Click({$FastText.ShowReplaceDialog()})
+$xpopup.Items.Add($Replace)
+#Replace
+
+$Goto = new-object System.Windows.Forms.ToolStripMenuItem
+$Goto.text = "Go to Line ..."
+$Goto.Add_Click({$FastText.ShowGotoDialog()})
+$xpopup.Items.Add($Goto)
+
+$xpSep3 = new-object System.Windows.Forms.ToolStripSeparator
+$xpopup.Items.Add($xpSep3)
+
+$ExpandAll = new-object System.Windows.Forms.ToolStripMenuItem
+$ExpandAll.text = "Expand All"
+$ExpandAll.Add_Click({$FastText.ExpandAllFoldingBlocks()})
+$xpopup.Items.Add($ExpandAll)
+
+$CollapseAll = new-object System.Windows.Forms.ToolStripMenuItem
+$CollapseAll.text = "Collapse All"
+$CollapseAll.Add_Click({$FastText.CollapseAllFoldingBlocks()})
+$xpopup.Items.Add($CollapseAll)
+
+$eventForm.ContextMenuStrip = $xpopup
+$eventForm.Show()
+
+		[void]$Script:refs['MainForm'].ShowDialog()
+	}
+		catch {Update-ErrorLog -ErrorRecord $_ -Message "Exception encountered unexpectedly at ShowDialog."}
 
     <#
     #region Actions After Form Closed
@@ -2973,6 +3186,8 @@ vs7bAAAAAElFTkSuQmCC
     #endregion Actions After Form Closed
     #>
 }
+
+
 
 #region Start Point of Execution
 
@@ -2997,6 +3212,9 @@ public static extern bool ShowWindow(IntPtr hWnd, Int32 nCmdShow);
 '
 
 [Console.Window]::ShowWindow([Console.Window]::GetConsoleWindow(), 0)
+
+
+
 
     #Loop Until GUI Closure
 while ( $handleGUI.IsCompleted -eq $false ) {Start-Sleep -Seconds 5}
