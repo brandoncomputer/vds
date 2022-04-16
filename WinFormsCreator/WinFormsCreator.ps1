@@ -2267,7 +2267,7 @@ $sbGUI = {
             [pscustomobject]@{Name='TabPage';Prefix='tpg';Type='TabControl';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TableLayoutPanel';Prefix='tlp';Type='Container';ChildTypes=@('Common','Container','MenuStrip','Context')},
             [pscustomobject]@{Name='TextBox';Prefix='tbx';Type='Common';ChildTypes=@('Context')},
-			[pscustomobject]@{Name='ToolStrip';Prefix='tls';Type='Common';ChildTypes=@('Context')},
+			[pscustomobject]@{Name='ToolStrip';Prefix='tls';Type='MenuStrip';ChildTypes=@('Context')},
 			[pscustomobject]@{Name='ToolStripButton';Prefix='tsb';Type='MenuStrip-Root';ChildTypes=@()},
 			[pscustomobject]@{Name='ToolStripSplitButton';Prefix='tss';Type='MenuStrip-Root';ChildTypes=@('MenuStrip-Root')},
             [pscustomobject]@{Name='Timer';Prefix='tmr';Type='Parentless';ChildTypes=@()}, 
