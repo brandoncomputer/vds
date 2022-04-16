@@ -110,6 +110,8 @@ SOFTWARE.
 		Fixed F9 for folders with spaces.
 		Switched to Semantic Versioning, this product supercedes Powershell Designer 1.0.3
 		Slicked to topnode if control add error.
+	2.0.5 Fixed path issue when installing new version.
+		
 		
 BASIC MODIFICATIONS License
 #This software has been modified from the original as tagged with #brandoncomputer
@@ -3111,6 +3113,12 @@ vs7bAAAAAElFTkSuQmCC
 		#brandoncomputer_FastTextEditWindowCreate
 $eventForm = New-Object System.Windows.Forms.Form
 $eventForm.Text = "Events"
+if ((Get-Module -ListAvailable powershell-designer).count -gt 1) {
+	[Reflection.Assembly]::LoadFile("$(split-path -path (Get-Module -ListAvailable powershell-designer).path)[0]\FastColoredTextBox.dll") | out-null
+}
+else {
+	[Reflection.Assembly]::LoadFile("$(split-path -path (Get-Module -ListAvailable powershell-designer).path)\FastColoredTextBox.dll") | out-null
+}
 
 [Reflection.Assembly]::LoadFile("$(split-path -path (Get-Module -ListAvailable powershell-designer).path)\FastColoredTextBox.dll") | out-null
 $FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
