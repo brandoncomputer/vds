@@ -29,7 +29,7 @@ SOFTWARE.
         Modified:     Brandon Cunningham
         Created On:   1/15/2020
         Last Updated: 4/16/2022
-        Version:      v0.0.0.1
+        Version:      v2.0.6
     ===========================================================================
 
     .DESCRIPTION
@@ -111,6 +111,7 @@ SOFTWARE.
 		Switched to Semantic Versioning, this product supercedes Powershell Designer 1.0.3
 		Slicked to topnode if control add error.
 	2.0.5 Fixed path issue when installing new version.
+	2.0.6 Fixed bug in path issue fix.
 		
 		
 BASIC MODIFICATIONS License
@@ -3113,14 +3114,14 @@ vs7bAAAAAElFTkSuQmCC
 		#brandoncomputer_FastTextEditWindowCreate
 $eventForm = New-Object System.Windows.Forms.Form
 $eventForm.Text = "Events"
-if ((Get-Module -ListAvailable powershell-designer).count -gt 1) {
-	[Reflection.Assembly]::LoadFile("$(split-path -path (Get-Module -ListAvailable powershell-designer).path)[0]\FastColoredTextBox.dll") | out-null
+
+if ((Get-Module -ListAvailable powershell-designer).count -gt 1){
+	[Reflection.Assembly]::LoadFile("$(split-path -path (Get-Module -ListAvailable powershell-designer)[0].path)\FastColoredTextBox.dll") | out-null
 }
-else {
+else{
 	[Reflection.Assembly]::LoadFile("$(split-path -path (Get-Module -ListAvailable powershell-designer).path)\FastColoredTextBox.dll") | out-null
 }
 
-[Reflection.Assembly]::LoadFile("$(split-path -path (Get-Module -ListAvailable powershell-designer).path)\FastColoredTextBox.dll") | out-null
 $FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
 $FastText.Language = "DialogShell"
 $FastText.Dock = "Fill"
