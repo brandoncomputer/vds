@@ -1,3 +1,4 @@
+
   THIS CODE AND INFORMATION IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY
   KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
   IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR
@@ -5,8 +6,6 @@
 
   License: GNU Lesser General Public License (LGPLv3)
 
-Brandon Cunningham Fork (Visual DialogShell)
-https://github.com/brandoncomputer/FastColoredTextBox
+  Email: pavel_torgashov@ukr.net.
 
-Original Work by Pavel Torgashov
-https://github.com/PavelTorgashov/FastColoredTextBox
+  Copyright (C) Pavel Torgashov, 2011-2016.
