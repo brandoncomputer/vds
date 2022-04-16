@@ -367,6 +367,8 @@ $sbGUI = {
                         # Create the Form
                     $form = New-Object System.Windows.Forms.Form
                     $form.Name = $ControlName
+					$form.Height = 600
+					$form.Width = 800
                     $form.Location = New-Object System.Drawing.Point(0,0)
                     $form.Add_FormClosing({
                         param($Sender,$e)
@@ -384,6 +386,7 @@ $sbGUI = {
                         $Script:refs['PropertyGrid'].Refresh()
 
                         $this.ParentForm.Refresh()
+						
                     })
                     $form.Add_LocationChanged({$this.ParentForm.Refresh()})
                     $form.Add_ReSizeEnd({
