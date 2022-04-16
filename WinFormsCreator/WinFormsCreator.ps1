@@ -3098,12 +3098,9 @@ $FastText = New-Object FastColoredTextBoxNS.FastColoredTextBox
 $FastText.Language = "DialogShell"
 $FastText.Dock = "Fill"
 $eventForm.Controls.Add($FastText)
-#$eventForm.isMDIChild = $true
 $eventForm.MDIParent = $refs['MainForm']
 $eventForm.Dock = "Bottom"
 $eventForm.ControlBox = $false
-$eventForm.TopMost = $true
-#$eventForm.TopLevel = $true
 $eventForm.ShowIcon = $false
 
 $xpopup = New-Object System.Windows.Forms.ContextMenuStrip
