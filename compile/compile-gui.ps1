@@ -1,6 +1,13 @@
-directory change "$(path $(Get-Module -ListAvailable vds).path)\compile"
+if ((Get-Module -ListAvailable vds).count -gt 1){
+	$global:module = $(path $(Get-Module -ListAvailable vds)[0].path)
+}
+else {
+	$global:module = $(path $(Get-Module -ListAvailable vds).path)
+}
+
+directory change "$module\compile"
 $MyForm = dialog create "Script Packager" 0 0 389 300
-$MyForm.icon = "$(path $(Get-Module -ListAvailable vds).path)\res\compile.ico"
+$MyForm.icon = "$module\res\compile.ico"
     $TextBox1 = dialog add $MyForm TextBox 25 20 250 20 
     dialog settip $textbox1 "Inputfile" 
     $Button1 = dialog add $MyForm Button 25 275 75 20 "Browse"
@@ -220,7 +227,7 @@ if ($checkbox5.checked -eq $true){
     else{$paramstring = "-windowstyle hidden"}
 }
     
-$ctf1 = Get-Content -Path "$(path $(Get-Module -ListAvailable vds).path)\vds.psm1" -Encoding UTF8 -ErrorAction SilentlyContinue
+$ctf1 = Get-Content -Path "$module\vds.psm1" -Encoding UTF8 -ErrorAction SilentlyContinue
 $ctf2 = Get-Content -Path $textbox1.text -Encoding UTF8 -ErrorAction SilentlyContinue
 Remove-Item -path $textbox2.text -force
 Add-Content $textbox2.text $ctf1
@@ -257,7 +264,7 @@ if ($checkbox5.checked -eq $true){
     }
     else{$paramstring = "-windowstyle hidden"}
 }
-$ctf1 = Get-Content -Path "$(path $(Get-Module -ListAvailable vds).path)\vds.psm1" -Encoding UTF8 -ErrorAction SilentlyContinue
+$ctf1 = Get-Content -Path "$module\vds.psm1" -Encoding UTF8 -ErrorAction SilentlyContinue
 $ctf2 = Get-Content -Path $textbox1.text -Encoding UTF8 -ErrorAction SilentlyContinue
 
     $header = "IF [%1]==[] (set file1=$(chr 36)null) ELSE (set file1=%1)

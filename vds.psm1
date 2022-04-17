@@ -1575,13 +1575,31 @@ function dialogshell($a)
 	switch ($a){
 		"ide" {
 			if ((get-host).version.major -eq 7) {
-				start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)"
+				if ((Get-Module -ListAvailable vds).count -gt 1){
+					start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds)[0].path)\examples\vds-ide.ps1$(chr 34)"
+				}
+				else {
+					start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)"
+				}
 			}
 			else {
-				start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)"
+				if ((Get-Module -ListAvailable vds).count -gt 1){
+					start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds)[0].path)\examples\vds-ide.ps1$(chr 34)"
+				}
+				else {
+					start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)"
+				}
 			}
 		}
 		"register"{
+			
+			if ((Get-Module -ListAvailable vds).count -gt 1){
+				$module = $(path $(Get-Module -ListAvailable vds)[0].path)
+			}
+			else {
+				$module = $(path $(Get-Module -ListAvailable vds).path)
+			}
+			
 			If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {    
 				console "Please run powershell elevated to invoke this command."
 			}
@@ -1591,78 +1609,78 @@ function dialogshell($a)
 					registry newitem "HKLM:\Software\Classes\.ds1\" "(Default)" String "DialogShell.Script"
 					registry newkey "HKLM:\Software\Classes\" "DialogShell.Script"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "DefaultIcon"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\DefaultIcon" "(Default)" String "$(chr 34)$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\DefaultIcon" "(Default)" String "$(chr 34)$module\res\terminal.ico$(chr 34)"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "Shell"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Edit"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Debug"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\Command" "(Default)" String "pwsh.exe -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\Command" "(Default)" String "pwsh.exe -ep bypass -sta -file $(chr 34)$module\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
 					#																					
 					registry newkey "HKLM:\Software\Classes\" .dsproj
 					registry newitem "HKLM:\Software\Classes\.dsproj\" "(Default)" String "DialogShell.Project"
 					registry newkey "HKLM:\Software\Classes\" "DialogShell.Project"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "DefaultIcon"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Project\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\DefaultIcon" "(Default)" String "$module\res\icon.ico"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "Shell"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					registry newkey "HKLM:\Software\Classes\" .dsform
 					registry newitem "HKLM:\Software\Classes\.dsform\" "(Default)" String "DialogShell.Form"
 					registry newkey "HKLM:\Software\Classes\" "DialogShell.Form"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "Shell"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "DefaultIcon"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\application.ico"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$module\res\application.ico"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\designer.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "pwsh.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\designer.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					directory create "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
-					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("pwsh.exe") ("$(path $(Get-Module -ListAvailable vds).path)\examples") ("$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)")
-                    link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("pwsh.exe") ("$(path $(Get-Module -ListAvailable vds).path)\compile") ("$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34)")
+					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("pwsh.exe") ("$module\examples") ("$module\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\vds-ide.ps1$(chr 34)")
+                    link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("pwsh.exe") ("$module\compile") ("$module\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$module\compile\dialogshell.ps1$(chr 34)")
 				}
 				else {
 					registry newkey  "HKLM:\Software\Classes\" .ds1
 					registry newitem "HKLM:\Software\Classes\.ds1\" "(Default)" String "DialogShell.Script"
 					registry newkey "HKLM:\Software\Classes\" "DialogShell.Script"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "DefaultIcon"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\DefaultIcon" "(Default)" String "$(chr 34)$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\DefaultIcon" "(Default)" String "$(chr 34)$module\res\terminal.ico$(chr 34)"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\" "Shell"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Open\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Edit"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Edit\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\" "Debug"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\Command" "(Default)" String "powershell.exe -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Script\Shell\Debug\Command" "(Default)" String "powershell.exe -ep bypass -sta -file $(chr 34)$module\compile\dialogshell.ps1$(chr 34) $(chr 34)%1$(chr 34) -cpath"
 					#																					
 					registry newkey "HKLM:\Software\Classes\" .dsproj
 					registry newitem "HKLM:\Software\Classes\.dsproj\" "(Default)" String "DialogShell.Project"
 					registry newkey "HKLM:\Software\Classes\" "DialogShell.Project"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "DefaultIcon"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Project\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\DefaultIcon" "(Default)" String "$module\res\icon.ico"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\" "Shell"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Project\Shell\Open\Command" "(Default)" String "powershell.exe -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\vds-ide.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					registry newkey "HKLM:\Software\Classes\" .dsform
 					registry newitem "HKLM:\Software\Classes\.dsform\" "(Default)" String "DialogShell.Form"
 					registry newkey "HKLM:\Software\Classes\" "DialogShell.Form"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "Shell"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\" "DefaultIcon"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$(path $(Get-Module -ListAvailable vds).path)\res\application.ico"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\DefaultIcon" "(Default)" String "$module\res\application.ico"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\" "Open"
 					registry newkey "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\" "Command"
-					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "powershell.exe  -windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\designer.ps1$(chr 34) $(chr 34)%1$(chr 34)"
+					registry newitem "HKLM:\Software\Classes\DialogShell.Form\Shell\Open\Command" "(Default)" String "powershell.exe  -windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\designer.ps1$(chr 34) $(chr 34)%1$(chr 34)"
 					directory create "c:\programdata\microsoft\windows\start menu\programs\Visual DialogShell"
-					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("powershell.exe") ("$(path $(Get-Module -ListAvailable vds).path)\examples") ("$(path $(Get-Module -ListAvailable vds).path)\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\examples\vds-ide.ps1$(chr 34)")
-                    link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("powershell.exe") ("$(path $(Get-Module -ListAvailable vds).path)\compile") ("$(path $(Get-Module -ListAvailable vds).path)\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$(path $(Get-Module -ListAvailable vds).path)\compile\dialogshell.ps1$(chr 34)")					
+					link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\Visual DialogShell IDE.lnk") ("powershell.exe") ("$module\examples") ("$module\res\icon.ico,0") ("-windowstyle hidden -ep bypass -sta -file $(chr 34)$module\examples\vds-ide.ps1$(chr 34)")
+                    link ("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual DialogShell\DialogShell Console.lnk") ("powershell.exe") ("$module\compile") ("$module\res\terminal.ico,0") ("-ep bypass -sta -file $(chr 34)$module\compile\dialogshell.ps1$(chr 34)")					
 				}
 			
 			    directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell")
@@ -1672,12 +1690,12 @@ function dialogshell($a)
 				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-US")
 				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\res")
 				directory create ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\elements")
-				file copy ("$(path $(Get-Module -ListAvailable vds).path)\res\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\res")
-				file copy ("$(path $(Get-Module -ListAvailable vds).path)\plugins\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\plugins")
-				file copy ("$(path $(Get-Module -ListAvailable vds).path)\wizards\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\wizards")
-				file copy ("$(path $(Get-Module -ListAvailable vds).path)\elements\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\elements")
-				file copy ("$(path $(Get-Module -ListAvailable vds).path)\examples\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
-				file copy ("$(path $(Get-Module -ListAvailable vds).path)\examples\en-us\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-us")
+				file copy ("$module\res\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\res")
+				file copy ("$module\plugins\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\plugins")
+				file copy ("$module\wizards\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\wizards")
+				file copy ("$module\elements\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\elements")
+				file copy ("$module\examples\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples")
+				file copy ("$module\examples\en-us\*") ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\en-us")
 			
 			}
 		}
