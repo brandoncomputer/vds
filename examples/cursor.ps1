@@ -1,3 +1,5 @@
+DPIAware
+VisualStyle
 $Form = dialog create "TEST CURSOR" 0 0 321 196
     $List1 = dialog add $Form ListBox 10 10 180 144 "ListBox1"  
             $reset = dialog add $Form Button 16 221 75 23 "reset"  

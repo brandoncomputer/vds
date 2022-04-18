@@ -1,4 +1,6 @@
-    $calc = dialog create "Admin Calculator" 0 0 148 229
+DPIAware
+VisualStyle   
+   $calc = dialog create "Admin Calculator" 0 0 148 229
     $calc.FormBorderStyle = 6
     
     $calc.maximumsize = new-object System.Drawing.Size((148 * $(screeninfo scale)),(229 * $(screeninfo scale)))

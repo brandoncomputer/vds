@@ -6,8 +6,20 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 public class vds {
+	
+		public static void SetCompat() 
+		{
+			//	SetProcessDPIAware();
+	            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+		}
+			
+	    [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern bool SetProcessDPIAware();
+	
 [DllImport("user32.dll")]
 public static extern bool InvertRect(IntPtr hDC, [In] ref RECT lprc);
 
@@ -320,6 +332,17 @@ $global:excelinit = $false
 $global:fieldsep = "|"
 $global:database = new-object System.Data.Odbc.OdbcConnection
 set-alias run invoke-expression
+
+function VisualStyle() {
+	[vds]::SetCompat()
+}
+
+function DPIAware($a) {
+$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+[vds]::SetProcessDPIAware()
+$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
+$global:ctscale = ($screen/$vscreen)
+}
 
 function abs($a) {
 <#

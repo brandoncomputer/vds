@@ -1,19 +1,5 @@
-info $null 2>$null
-$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-if ((get-host).version.major -eq 5) {
-[xml]$xml = @"
-            <Window
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-            </Window>
-"@
-$dum = (New-Object System.Xml.XmlNodeReader $xml)
-$win = [Windows.Markup.XamlReader]::Load($dum)
-}
-
-$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-
-$global:ctscale = ($screen/$vscreen)
+DPIAware
+VisualStyle
 
 if ((Get-Module -ListAvailable vds).count -gt 1){
 	$global:module = $(path $(Get-Module -ListAvailable vds)[0].path)

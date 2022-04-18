@@ -1,3 +1,5 @@
+VisualStyle
+
 if ((Get-Module -ListAvailable vds).count -gt 1){
 	$global:module = $(path $(Get-Module -ListAvailable vds)[0].path)
 }
