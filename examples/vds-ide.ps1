@@ -597,27 +597,27 @@ function global:menuitemclick ($menu) {
 				}
 			}
 			else {
-				if ($(ask "Screen Scale must be 100%. Would you like to launch another session in a compatible mode?") -eq "Yes"){
-					switch ((get-host).version.major){
-						"7" {
-							if ($(ext $FastTab.SelectedTab.Text)) {						
-								start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).$(ext $FastTab.SelectedTab.Text)$(chr 34)"
-							}
-							else {
-								start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34)"
-							}							
-						}
 				
-						default {
-							if ($(ext $FastTab.SelectedTab.Text)) {							
-								start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34) $(chr 34)$(path $FastTab.SelectedTab.Text)\$(name $FastTab.SelectedTab.Text).$(ext $FastTab.SelectedTab.Text)$(chr 34)"
-							}
-							else {
-								start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\vds-ide-noscale.ps1$(chr 34)"
-							}
+				switch ((get-host).version.major){
+					"7" {
+						if ($(ext $FastTab.SelectedTab.Text)) {						
+							start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\designer.ps1$(chr 34)"
+						}
+						else {
+							start-process -filepath pwsh.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\designer.ps1$(chr 34)"
+						}							
+					}
+			
+					default {
+						if ($(ext $FastTab.SelectedTab.Text)) {							
+							start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\designer.ps1$(chr 34)"
+						}
+						else {
+							start-process -filepath powershell.exe -argumentlist '-ep bypass','-windowstyle hidden','-sta',"-file $(chr 34)$(curdir)\designer.ps1$(chr 34)"
 						}
 					}
 				}
+			
 			}	
 		}
 		"$localecompile" {
@@ -1636,23 +1636,13 @@ function ExportForm {
 	if  ($scaleCheck.Checked -eq $True)
 	{
 	
-        $scaleString+= 'info $null 2>$null
-		$vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-if ((get-host).version.major -eq 5) {
-[xml]$xml = @"
-            <Window
-                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-            </Window>
-"@
-$dum = (New-Object System.Xml.XmlNodeReader $xml)
-$win = [Windows.Markup.XamlReader]::Load($dum)
-}
-
-$screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-
-$global:ctscale = ($screen/$vscreen)
- 
+        $scaleString+= 'DPIAware
+'
+	}
+	if  ($visualCheck.Checked -eq $True)
+	{
+	
+        $scaleString+= 'VisualStyle
 '
 	}
     $mFooterString = ''
@@ -1895,7 +1885,8 @@ $mAddButton.Add_Click({AddElement})
 
 #$mForm.Controls.Add($mAddButton) 
  
-$scaleCheck = dialog add $mform CheckBox 35 445 200 20 "Fix Scaling for HDR"
+$scaleCheck = dialog add $mform CheckBox 35 445 200 20 "DPIAware"
+$visualCheck = dialog add $mform CheckBox 35 545 100 20 "VisualStyle"
  
 $mFormLabel = dialog add $mform label 5 5 30 25 'Title:'
 $mFormLabel.TextAlign='MiddleRight' 
