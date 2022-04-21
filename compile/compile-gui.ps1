@@ -1,8 +1,10 @@
+dpiaware
+visualstyle
 if ((Get-Module -ListAvailable vds).count -gt 1){
-	$global:module = $(path $(Get-Module -ListAvailable vds)[0].path)
+    $global:module = $(path $(Get-Module -ListAvailable vds)[0].path)
 }
 else {
-	$global:module = $(path $(Get-Module -ListAvailable vds).path)
+    $global:module = $(path $(Get-Module -ListAvailable vds).path)
 }
 
 directory change "$module\compile"

@@ -334,12 +334,12 @@ $global:database = new-object System.Data.Odbc.OdbcConnection
 set-alias run invoke-expression
 
 function VisualStyle() {
-	[vds]::SetCompat()
+	[vds]::SetCompat() | out-null
 }
 
 function DPIAware($a) {
 $vscreen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
-[vds]::SetProcessDPIAware()
+[vds]::SetProcessDPIAware() | out-null
 $screen = [System.Windows.Forms.SystemInformation]::VirtualScreen.height
 $global:ctscale = ($screen/$vscreen)
 }

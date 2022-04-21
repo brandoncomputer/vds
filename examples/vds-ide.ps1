@@ -68,6 +68,7 @@ $localeexit			= (iniread locale Exit)
 $localeedit         = (iniread locale Edit)
 $localeundo         = (iniread locale Undo)
 $localeundott       = (iniread locale Undott)
+$localeredo			= (iniread locale Redo)
 $localecut          = (iniread locale Cut)
 $localecuttt        = (iniread locale Cuttt)
 $localecopy         = (iniread locale Copy)
@@ -80,6 +81,8 @@ $localereplace      = (iniread locale Replace)
 $localeselectall    = (iniread locale SelectAll)
 $localetimedate     = (iniread locale TimeDate)
 $localeview         = (iniread locale View)
+$localecollapseall  = (iniread locale CollapseAll)
+$localeexpandall	= (iniread locale ExpandAll)
 $localestatusbar    = (iniread locale StatusBar)
 $localerecord       = (iniread locale Record)
 $localerecordtt     = (iniread locale Recordtt)
@@ -133,8 +136,8 @@ $toolstrip1.Height = $toolstrip1.Height * $ctscale
 
 
 $file               = dialog add $FastTextForm menustrip "$localefile" ("$localenew|Ctrl+N|$(curdir)\..\res\page_add.png,$localeopen|Ctrl+O|$(curdir)\..\res\folder_page_white.png,$localesave|Ctrl+S|$(curdir)\..\res\disk.png,$localesaveas,-,$localeprint|Ctrl+P|$(curdir)\..\res\printer.png,-,$localeexit|Alt+F4")
-$edit               = dialog add $FastTextForm menustrip "$localeedit" ("$localeundo|Ctrl+Z|$(curdir)\..\res\arrow_undo.png,-,$localecut|Ctrl+X|$(curdir)\..\res\cut.png,$localecopy|Ctrl+C|$(curdir)\..\res\page_copy.png,$localepaste|Ctrl+V|$(curdir)\..\res\paste_plain.png,-,$localefind|Ctrl+F|$(curdir)\..\res\page_find.png,$localereplace|Ctrl+H,&Go To...|Ctrl+G,$localeselectall|Ctrl+A,$localetimedate|F5")
-$view               = dialog add $FastTextForm menustrip "$localeview" "$localestatusbar,-,50%|Ctrl+5,100%|Ctrl+0,200%|Ctrl+2" 
+$edit               = dialog add $FastTextForm menustrip "$localeedit" ("$localeundo|Ctrl+Z|$(curdir)\..\res\arrow_undo.png,$localeredo|Ctrl+Y,-,$localecut|Ctrl+X|$(curdir)\..\res\cut.png,$localecopy|Ctrl+C|$(curdir)\..\res\page_copy.png,$localepaste|Ctrl+V|$(curdir)\..\res\paste_plain.png,-,$localefind|Ctrl+F|$(curdir)\..\res\page_find.png,$localereplace|Ctrl+H,&Go To...|Ctrl+G,$localeselectall|Ctrl+A,$localetimedate|F5")
+$view               = dialog add $FastTextForm menustrip "$localeview" "$localecollapseall|F6,$localeexpandall|F7,$localestatusbar,-,50%|Ctrl+5,100%|Ctrl+0,200%|Ctrl+2" 
 $build              = dialog add $FastTextForm menustrip "$localebuild" ("$localedialogshell|F3|$(curdir)\..\res\terminal.ico,$localedesigner|F2|$(curdir)\..\res\icon.ico,$localedebug|F8|$(curdir)\..\res\bug_go.png,$localecompile|F9|$(curdir)\..\res\compile.ico")
 $mPlugins           = dialog add $FastTextForm menustrip "$localeplugins" 
 $help               = dialog add $FastTextForm menustrip "$localehelp" ("$localehelp|F1|$(curdir)\..\res\help.png,$localeabout")               
@@ -245,7 +248,7 @@ $FastTextForm.add_Closing({
             $ask = (ask "$localesavechanges" $FastTab.SelectedTab.Text)
             if ($ask -eq "Yes") {
                 if (equal $FastTab.SelectedTab.Text "[$localenewtt]") {
-                $saveFile = (savedlg "$localedialog")
+                $saveFile = (savedlg "$localedialog" ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\"))
                     if ($saveFile) {
                         if (equal (ext $saveFile) "dsproj") {
                                 $saveFile = "$(path $saveFile)\$(name $saveFile).ds1"
@@ -294,7 +297,7 @@ $closetab.add_Click({
         $ask = (ask "$localesavechanges" $FastTab.SelectedTab.Text)
             if ($ask -eq "Yes") {
                 if (equal $FastTab.SelectedTab.Text "[$localenewtt]") {
-                    $saveFile = (savedlg "$localedialog")
+                    $saveFile = (savedlg "$localedialog" ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\"))
                     if (equal (ext $saveFile) "dsproj") {
                             $saveFile = "$(path $saveFile)\$(name $saveFile).ds1"
                             }
@@ -362,12 +365,14 @@ $statusupdate.enabled = $true
 $statusupdate.add_Tick({
     if ($FastTab.TabPages.Count -gt 0) {
             $toolstrip1.items[12].enabled = $true
-            $edit.dropdownitems[6].enabled = $true
             $edit.dropdownitems[7].enabled = $true
             $edit.dropdownitems[8].enabled = $true
-            $view.dropdownitems[2].enabled = $true
-            $view.dropdownitems[3].enabled = $true
+            $edit.dropdownitems[9].enabled = $true
+			$view.dropdownitems[0].enabled = $true
+            $view.dropdownitems[1].enabled = $true
             $view.dropdownitems[4].enabled = $true
+            $view.dropdownitems[5].enabled = $true
+            $view.dropdownitems[6].enabled = $true
         #disable 50%
         #disable 100%
         #disable 200%
@@ -376,11 +381,11 @@ $statusupdate.add_Tick({
         $toolstrip1.items[15].enabled = $true
         
         #paste
-            $edit.dropdownitems[4].enabled = $true
+            $edit.dropdownitems[5].enabled = $true
             $toolstrip1.items[10].enabled = $true
             
             #time/date
-            $edit.dropdownitems[10].enabled = $true
+            $edit.dropdownitems[11].enabled = $true
             
             if ($FastTab.SelectedTab.Controls[0].TextLength -gt 0) {
         $file.dropdownitems[5].enabled = $true
@@ -398,7 +403,14 @@ $statusupdate.add_Tick({
         else
         {$edit.dropdownitems[0].enabled = $false
         $toolstrip1.items[6].enabled = $false
-        $FastTab.SelectedTab.Controls[0].IsChanged = $false
+        }
+		
+		        if ($FastTab.SelectedTab.Controls[0].RedoEnabled)
+        {
+            $edit.dropdownitems[1].enabled = $true
+        }
+        else
+        {$edit.dropdownitems[1].enabled = $false
         }
     
         if ($FastTab.SelectedTab.Controls[0].IsChanged -eq $true) {
@@ -431,23 +443,23 @@ $statusupdate.add_Tick({
         
         if ($FastTab.SelectedTab.Controls[0].selectionlength -eq 0) {
             #disable copy
-            $edit.dropdownitems[2].enabled = $false
-            $toolstrip1.items[8].enabled = $false
             $edit.dropdownitems[3].enabled = $false
+            $toolstrip1.items[8].enabled = $false
+            $edit.dropdownitems[4].enabled = $false
             $toolstrip1.items[9].enabled = $false
             #disable cut
         }
         else {
             #enable copy
-            $edit.dropdownitems[2].enabled = $true
-            $toolstrip1.items[8].enabled = $true
             $edit.dropdownitems[3].enabled = $true
+            $toolstrip1.items[8].enabled = $true
+            $edit.dropdownitems[4].enabled = $true
             $toolstrip1.items[9].enabled = $true
             #enable cut
         }
         if ($FastTab.SelectedTab.Controls[0].TextLength -eq 0)
         {
-            $edit.dropdownitems[9].enabled = $false 
+            $edit.dropdownitems[10].enabled = $false 
         #disable find
         #disable replace
         #disable go to
@@ -460,7 +472,7 @@ $statusupdate.add_Tick({
         #disable compile
         }
         else{
-            $edit.dropdownitems[9].enabled = $true
+            $edit.dropdownitems[10].enabled = $true
             $toolstrip1.items[12].enabled = $true   
         }
         
@@ -477,26 +489,27 @@ $statusupdate.add_Tick({
         $toolstrip1.items[4].enabled = $false
         #disable undo
         $edit.dropdownitems[0].enabled = $false
+		$edit.dropdownitems[1].enabled = $false
         $toolstrip1.items[6].enabled = $false
         #disable cut
         #disable copy
-            $edit.dropdownitems[2].enabled = $false
-            $toolstrip1.items[8].enabled = $false
             $edit.dropdownitems[3].enabled = $false
+            $toolstrip1.items[8].enabled = $false
+            $edit.dropdownitems[4].enabled = $false
             $toolstrip1.items[9].enabled = $false
         #disable paste
-            $edit.dropdownitems[4].enabled = $false
+            $edit.dropdownitems[5].enabled = $false
             $toolstrip1.items[10].enabled = $false
         #disable find
         #disable replace
         #disable go to
         #disable select all
         #disable time/date
-            $edit.dropdownitems[6].enabled = $false
             $edit.dropdownitems[7].enabled = $false
             $edit.dropdownitems[8].enabled = $false
             $edit.dropdownitems[9].enabled = $false
             $edit.dropdownitems[10].enabled = $false
+            $edit.dropdownitems[11].enabled = $false
             $toolstrip1.items[12].enabled = $false  
 
         
@@ -506,10 +519,11 @@ $statusupdate.add_Tick({
             $toolstrip1.items[20].enabled = $false
         #disable debug
         #disable compile
-        
-            $view.dropdownitems[2].enabled = $false
-            $view.dropdownitems[3].enabled = $false
+			$view.dropdownitems[0].enabled = $false
+            $view.dropdownitems[1].enabled = $false
             $view.dropdownitems[4].enabled = $false
+            $view.dropdownitems[5].enabled = $false
+            $view.dropdownitems[6].enabled = $false
         #disable 50%
         #disable 100%
         #disable 200%
@@ -706,7 +720,7 @@ function global:menuitemclick ($menu) {
                 $ask = (ask "$localesavechanges" $FastTab.SelectedTab.Text)
                 if ($ask -eq "Yes") {
                     if (equal $FastTab.SelectedTab.Text "[$localenewtt]") {
-                    $saveFile = (savedlg "$localedialog")
+                    $saveFile = (savedlg "$localedialog" ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\"))
                         if ($saveFile) {
                             if (equal (ext $saveFile) "dsproj") {
                                     $saveFile = "$(path $saveFile)\$(name $saveFile).ds1"
@@ -769,7 +783,7 @@ function global:menuitemclick ($menu) {
             $init.enabled = $true
         }
         "$localeopen" {
-            $fileOpen = (filedlg "$localedialog")
+            $fileOpen = (filedlg "$localedialog" ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\"))
             if ($fileOpen) {
                 if (equal (ext $fileOpen) "dsproj"){
                 $content = (get-content $fileOpen | select-object -skip 1)
@@ -826,7 +840,7 @@ function global:menuitemclick ($menu) {
             $init.enabled = $true
         }
         "$localesaveas" {
-            $saveFile = (savedlg "$localedialog")
+            $saveFile = (savedlg "$localedialog" ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\"))
                 if ($saveFile) {
                     if (equal (ext $saveFile) "dsproj") {
                         $saveFile = "$(path $saveFile)\$(name $saveFile).ds1"
@@ -850,6 +864,7 @@ function global:menuitemclick ($menu) {
      
         }
         "$localeundo" {$FastTab.SelectedTab.Controls[0].Undo()}
+		"$localeredo" {$FastTab.SelectedTab.Controls[0].Redo()}
         "$localecut" {$FastTab.SelectedTab.Controls[0].Cut()}
         "$localecopy" {$FastTab.SelectedTab.Controls[0].Copy()}
         "$localepaste" {$FastTab.SelectedTab.Controls[0].Paste()}
@@ -882,6 +897,12 @@ function global:menuitemclick ($menu) {
                 $FastText.WordWrap = $false
             }
         }
+		"$localecollapseall"{
+			$FastTab.SelectedTab.Controls[0].CollapseAllFoldingBlocks()
+		}
+		"$localeexpandall"{
+			$FastTab.SelectedTab.Controls[0].ExpandAllFoldingBlocks()
+		}
         "$localestatusbar" {
             if (equal $statusstripvisible $true) {
            # console "Hide"
@@ -2090,7 +2111,7 @@ $mCancelButton = dialog add $mform button (638+35) 5 300 33 'Cancel'
 
 $mSaveButton = dialog add $mform button (638+35) 335 150 33 'Save Form'
 $mSaveButton.add_Click({
-$saveform = (savedlg "DialogShell Form|*.dsform")
+$saveform = (savedlg "DialogShell Form|*.dsform" ([Environment]::GetFolderPath("MyDocuments")+"\DialogShell\examples\"))
     if ($saveForm) {
 		$global:openform = $saveform
 #   $mFormObj.Elements | ConvertTo-Json -depth 1- | Set-Content -Path $saveform 
