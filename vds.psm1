@@ -1,4 +1,4 @@
-Add-Type -AssemblyName System.Windows.Forms,presentationframework, presentationcore
+Add-Type -AssemblyName System.Windows.Forms,presentationframework, presentationcore, Microsoft.VisualBasic
 
 Add-Type @"
 using System;
